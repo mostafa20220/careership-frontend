@@ -59,15 +59,16 @@ const CATEGORY_OPTIONS = ["Frontend", "Backend", "Fullstack"];
 
 // Map display names to IDs (you'll need to adjust these based on your actual API)
 const DIFFICULTY_MAP: Record<string, number> = {
-  Easy: 1,
+  Easy: 3,
   Medium: 2,
-  Hard: 3,
+  Hard: 1,
 };
 
 const CATEGORY_MAP: Record<string, number> = {
-  Frontend: 1,
-  Backend: 2,
-  Fullstack: 3,
+  Frontend: 3,
+  Backend: 1,
+  Fullstack: 2,
+  Console: 4,
 };
 
 interface CreateDraftFormData {
@@ -441,6 +442,10 @@ const AIProjectDrafts: React.FC = () => {
         difficulty_level_id: DIFFICULTY_MAP[formData.difficulty],
         is_public: formData.isPublic,
       };
+
+      console.log("Creating draft with payload:", payload);
+      console.log("Form data category:", formData.category);
+      console.log("Mapped category_id:", CATEGORY_MAP[formData.category]);
 
       await createDraft(payload);
       setCreateDialogOpen(false);
