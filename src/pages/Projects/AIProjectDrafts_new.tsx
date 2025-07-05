@@ -221,8 +221,8 @@ const AIProjectDrafts: React.FC = () => {
     try {
       const payload: CreateProjectDraftRequest = {
         name: formData.name || undefined,
-        category: CATEGORY_MAP[formData.category],
-        difficulty_level: DIFFICULTY_MAP[formData.difficulty],
+        category_id: CATEGORY_MAP[formData.category],
+        difficulty_level_id: DIFFICULTY_MAP[formData.difficulty],
         is_public: formData.isPublic,
       };
 
@@ -293,12 +293,12 @@ const AIProjectDrafts: React.FC = () => {
                           <Box>
                             <Typography variant="caption" display="block">
                               {Object.keys(CATEGORY_MAP).find(
-                                (key) => CATEGORY_MAP[key] === draft.category
+                                (key) => CATEGORY_MAP[key] === Number(draft.category)
                               )}
                               {" • "}
                               {Object.keys(DIFFICULTY_MAP).find(
                                 (key) =>
-                                  DIFFICULTY_MAP[key] === draft.difficulty_level
+                                  DIFFICULTY_MAP[key] === Number(draft.difficulty_level)
                               )}
                             </Typography>
                             <Typography
@@ -376,7 +376,7 @@ const AIProjectDrafts: React.FC = () => {
               <Box sx={{ display: "flex", gap: 1, mt: 1 }}>
                 <Chip
                   label={Object.keys(CATEGORY_MAP).find(
-                    (key) => CATEGORY_MAP[key] === selectedDraft.category
+                    (key) => CATEGORY_MAP[key] === Number(selectedDraft.category)
                   )}
                   size="small"
                   color="primary"
@@ -384,7 +384,7 @@ const AIProjectDrafts: React.FC = () => {
                 <Chip
                   label={Object.keys(DIFFICULTY_MAP).find(
                     (key) =>
-                      DIFFICULTY_MAP[key] === selectedDraft.difficulty_level
+                      DIFFICULTY_MAP[key] === Number(selectedDraft.difficulty_level)
                   )}
                   size="small"
                   variant="outlined"
@@ -476,12 +476,12 @@ const AIProjectDrafts: React.FC = () => {
                       AI-generated project structure and files will be shown
                       here based on the selected category (
                       {Object.keys(CATEGORY_MAP).find(
-                        (key) => CATEGORY_MAP[key] === selectedDraft.category
+                        (key) => CATEGORY_MAP[key] === Number(selectedDraft.category)
                       )}
                       ) and difficulty level (
                       {Object.keys(DIFFICULTY_MAP).find(
                         (key) =>
-                          DIFFICULTY_MAP[key] === selectedDraft.difficulty_level
+                          DIFFICULTY_MAP[key] === Number(selectedDraft.difficulty_level)
                       )}
                       ).
                     </Typography>

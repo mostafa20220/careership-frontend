@@ -50,7 +50,7 @@ export default function CertificateDetails() {
   } = useGetCertificate(certificate_no || "");
   const { data: project } = useProjectById(certificate?.project_id || 0);
   const { data: userData, isLoading: userLoading } = useUser();
-  const downloadMutation = useDownloadCertificate(certificate_no || "");
+  const downloadMutation = useDownloadCertificate();
   const previewCertificate = usePreviewCertificate();
 
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -66,7 +66,7 @@ export default function CertificateDetails() {
 
   const handleDownload = async () => {
     try {
-      await downloadMutation.mutateAsync();
+      await downloadMutation.mutateAsync(certificate_no || "");
     } catch (error) {
       console.error("Download failed:", error);
     }
