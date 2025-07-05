@@ -26,7 +26,6 @@ import Home from "./pages/Home";
 import { darkPalette, lightPalette } from "./theme/palette";
 import Teams from "./pages/Teams/Teams";
 import TeamDetail from "./pages/Teams/TeamDetail";
-import CreateAIProject from "./pages/Projects/CreateAIProject";
 import AcceptInvitation from "./pages/Teams/AcceptInvitation";
 import ProjectSubmissions from "./pages/Projects/ProjectSubmissions";
 
@@ -105,10 +104,7 @@ const protectedRoutes = [
     path: "/projects/:projectId/tasks/:taskId/submissions",
     element: <ProjectSubmissions />,
   },
-  {
-    path: "/ai-project",
-    element: <CreateAIProject />,
-  },
+  
   {
     path: "/projects/drafts",
     element: <AIProjectDrafts />,
