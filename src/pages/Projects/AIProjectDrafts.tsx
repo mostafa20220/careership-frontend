@@ -442,6 +442,10 @@ const AIProjectDrafts: React.FC = () => {
         is_public: formData.isPublic,
       };
 
+      console.log("Creating draft with payload:", payload);
+      console.log("Form data category:", formData.category);
+      console.log("Mapped category_id:", CATEGORY_MAP[formData.category]);
+      
       await createDraft(payload);
       setCreateDialogOpen(false);
     } catch (error) {
