@@ -52,24 +52,8 @@ import {
 } from "@mui/icons-material";
 import { useAIProjectStore } from "../../store/aiProjectStore";
 import type { CreateProjectDraftRequest } from "../../services/aiProjectDrafts";
-
-// Constants from Projects page
-const DIFFICULTY_OPTIONS = ["Easy", "Medium", "Hard"];
-const CATEGORY_OPTIONS = ["Frontend", "Backend", "Fullstack"];
-
-// Map display names to IDs (you'll need to adjust these based on your actual API)
-const DIFFICULTY_MAP: Record<string, number> = {
-  Easy: 3,
-  Medium: 2,
-  Hard: 1,
-};
-
-const CATEGORY_MAP: Record<string, number> = {
-  Frontend: 3,
-  Backend: 1,
-  Fullstack: 2,
-  Console: 4,
-};
+import type { Category, Difficulty } from "../../types/project";
+import { fetchCategories, fetchDifficulties } from "../../services/api";
 
 interface CreateDraftFormData {
   name: string;
@@ -210,7 +194,9 @@ const CreateDraftDialog: React.FC<{
   onClose: () => void;
   onSubmit: (data: CreateDraftFormData) => void;
   loading: boolean;
-}> = ({ open, onClose, onSubmit, loading }) => {
+  categories: Category[];
+  difficulties: Difficulty[];
+}> = ({ open, onClose, onSubmit, loading, categories, difficulties }) => {
   const [formData, setFormData] = useState<CreateDraftFormData>({
     name: "",
     category: "",
@@ -258,9 +244,9 @@ const CreateDraftDialog: React.FC<{
                 setFormData({ ...formData, category: e.target.value })
               }
             >
-              {CATEGORY_OPTIONS.map((category) => (
-                <MenuItem key={category} value={category}>
-                  {category}
+              {categories.map((category) => (
+                <MenuItem key={category.id} value={category.name}>
+                  {category.name}
                 </MenuItem>
               ))}
             </Select>
@@ -275,9 +261,9 @@ const CreateDraftDialog: React.FC<{
                 setFormData({ ...formData, difficulty: e.target.value })
               }
             >
-              {DIFFICULTY_OPTIONS.map((difficulty) => (
-                <MenuItem key={difficulty} value={difficulty}>
-                  {difficulty}
+              {difficulties.map((difficulty) => (
+                <MenuItem key={difficulty.id} value={difficulty.name}>
+                  {difficulty.name}
                 </MenuItem>
               ))}
             </Select>
@@ -423,8 +409,27 @@ const AIProjectDrafts: React.FC = () => {
   const [selectedDraftForMenu, setSelectedDraftForMenu] = useState<
     number | null
   >(null);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [difficulties, setDifficulties] = useState<Difficulty[]>([]);
 
   const selectedDraft = drafts.find((draft) => draft.id === selectedDraftId);
+
+  // Fetch categories and difficulties on component mount
+  useEffect(() => {
+    const loadFilters = async () => {
+      try {
+        const [categoriesRes, difficultiesRes] = await Promise.all([
+          fetchCategories(),
+          fetchDifficulties(),
+        ]);
+        setCategories(categoriesRes.data);
+        setDifficulties(difficultiesRes.data);
+      } catch (error) {
+        console.error("Failed to load filters:", error);
+      }
+    };
+    loadFilters();
+  }, []);
 
   useEffect(() => {
     fetchDrafts();
@@ -436,16 +441,29 @@ const AIProjectDrafts: React.FC = () => {
 
   const handleCreateDraft = async (formData: CreateDraftFormData) => {
     try {
+      // Find category and difficulty IDs based on selected names
+      const selectedCategory = categories.find(
+        (cat) => cat.name === formData.category
+      );
+      const selectedDifficulty = difficulties.find(
+        (diff) => diff.name === formData.difficulty
+      );
+
+      if (!selectedCategory || !selectedDifficulty) {
+        console.error("Invalid category or difficulty selection");
+        return;
+      }
+
       const payload: CreateProjectDraftRequest = {
         name: formData.name || undefined,
-        category_id: CATEGORY_MAP[formData.category],
-        difficulty_level_id: DIFFICULTY_MAP[formData.difficulty],
+        category_id: selectedCategory.id,
+        difficulty_level_id: selectedDifficulty.id,
         is_public: formData.isPublic,
       };
 
       console.log("Creating draft with payload:", payload);
       console.log("Form data category:", formData.category);
-      console.log("Mapped category_id:", CATEGORY_MAP[formData.category]);
+      console.log("Mapped category_id:", selectedCategory.id);
 
       await createDraft(payload);
       setCreateDialogOpen(false);
@@ -1304,6 +1322,8 @@ const AIProjectDrafts: React.FC = () => {
         onClose={() => setCreateDialogOpen(false)}
         onSubmit={handleCreateDraft}
         loading={isLoading}
+        categories={categories}
+        difficulties={difficulties}
       />
 
       <EditDraftDialog

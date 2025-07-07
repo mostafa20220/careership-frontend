@@ -18,50 +18,98 @@ import {
 import { SmartToy as AIIcon } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 
-import type { Project } from "../../types/project";
+import type { Project, Category, Difficulty } from "../../types/project";
 import ProjectCard from "../../components/ProjectCard";
-import api from "../../services/api";
+import api, { fetchCategories, fetchDifficulties } from "../../services/api";
 
 const PAGE_SIZE = 10;
-const DIFFICULTY_OPTIONS = ["", "Easy", "Medium", "Hard"];
-const CATEGORY_OPTIONS = ["", "Frontend", "Backend", "Fullstack"];
 
 export default function Projects() {
-  const [projects, setProjects] = useState<Project[]>([]);
+  const [allProjects, setAllProjects] = useState<Project[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [difficulties, setDifficulties] = useState<Difficulty[]>([]);
   const [page, setPage] = useState(1);
-  const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [difficulty, setDifficulty] = useState("");
   const [category, setCategory] = useState("");
+  const [premium, setPremium] = useState("");
+  const [visibility, setVisibility] = useState("");
+  const [registered, setRegistered] = useState("");
   const navigate = useNavigate();
+
+  // Clear all filters
+  const clearFilters = () => {
+    setDifficulty("");
+    setCategory("");
+    setPremium("");
+    setVisibility("");
+    setRegistered("");
+    setPage(1);
+  };
+
+  // Check if any filters are active
+  const hasActiveFilters =
+    difficulty || category || premium || visibility || registered;
+
+  // Filter projects locally
+  const filteredProjects = allProjects.filter((project) => {
+    if (difficulty && project.difficulty_level !== difficulty) return false;
+    if (category && project.category !== category) return false;
+    if (premium === "true" && !project.is_premium) return false;
+    if (premium === "false" && project.is_premium) return false;
+    if (visibility === "true" && !project.is_public) return false;
+    if (visibility === "false" && project.is_public) return false;
+    if (registered === "true" && !project.is_registered) return false;
+    if (registered === "false" && project.is_registered) return false;
+    return true;
+  });
+
+  // Pagination for filtered results
+  const totalPages = Math.ceil(filteredProjects.length / PAGE_SIZE);
+  const startIndex = (page - 1) * PAGE_SIZE;
+  const paginatedProjects = filteredProjects.slice(
+    startIndex,
+    startIndex + PAGE_SIZE
+  );
+
+  // Fetch categories and difficulties on component mount
+  useEffect(() => {
+    const loadFilters = async () => {
+      try {
+        const [categoriesRes, difficultiesRes] = await Promise.all([
+          fetchCategories(),
+          fetchDifficulties(),
+        ]);
+        setCategories(categoriesRes.data);
+        setDifficulties(difficultiesRes.data);
+      } catch (error) {
+        console.error("Failed to load filters:", error);
+      }
+    };
+    loadFilters();
+  }, []);
 
   useEffect(() => {
     setPage(1); // Reset page when filters change
-  }, [difficulty, category]);
+  }, [difficulty, category, premium, visibility, registered]);
 
   useEffect(() => {
     setLoading(true);
     setError(null);
-    const params = new URLSearchParams();
-    params.append("page", page.toString());
-    if (difficulty) params.append("difficulty_level", difficulty);
-    if (category) params.append("category", category);
 
+    // Fetch all projects without pagination for local filtering
     api
-      .get(`/projects/?${params.toString()}`)
+      .get("/projects/")
       .then((res) => {
-        setProjects(res.data.results);
-        setCount(res.data.count);
+        setAllProjects(res.data.results);
         setLoading(false);
       })
       .catch(() => {
         setError("Failed to load projects");
         setLoading(false);
       });
-  }, [page, difficulty, category]);
-
-  const totalPages = Math.ceil(count / PAGE_SIZE);
+  }, []);
 
   // will be displayed when the page is loading
   const renderSkeletonCards = () => (
@@ -107,35 +155,94 @@ export default function Projects() {
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Box sx={{ mb: 4, display: "flex", gap: 2 }}>
-        <FormControl size="small" sx={{ minWidth: 140 }}>
-          <InputLabel>Difficulty</InputLabel>
-          <Select
-            value={difficulty}
-            label="Difficulty"
-            onChange={(e) => setDifficulty(e.target.value)}
-          >
-            {DIFFICULTY_OPTIONS.map((opt) => (
-              <MenuItem key={opt} value={opt}>
-                {opt || "All"}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <FormControl size="small" sx={{ minWidth: 140 }}>
-          <InputLabel>Category</InputLabel>
-          <Select
-            value={category}
-            label="Category"
-            onChange={(e) => setCategory(e.target.value)}
-          >
-            {CATEGORY_OPTIONS.map((opt) => (
-              <MenuItem key={opt} value={opt}>
-                {opt || "All"}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+      <Box sx={{ mb: 4 }}>
+        <Box
+          sx={{
+            display: "flex",
+            gap: 2,
+            flexWrap: "wrap",
+            alignItems: "center",
+            mb: 2,
+          }}
+        >
+          <FormControl size="small" sx={{ minWidth: 140 }}>
+            <InputLabel>Difficulty</InputLabel>
+            <Select
+              value={difficulty}
+              label="Difficulty"
+              onChange={(e) => setDifficulty(e.target.value)}
+            >
+              <MenuItem value="">All</MenuItem>
+              {difficulties.map((diff) => (
+                <MenuItem key={diff.id} value={diff.name}>
+                  {diff.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl size="small" sx={{ minWidth: 140 }}>
+            <InputLabel>Category</InputLabel>
+            <Select
+              value={category}
+              label="Category"
+              onChange={(e) => setCategory(e.target.value)}
+            >
+              <MenuItem value="">All</MenuItem>
+              {categories.map((cat) => (
+                <MenuItem key={cat.id} value={cat.name}>
+                  {cat.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl size="small" sx={{ minWidth: 140 }}>
+            <InputLabel>Type</InputLabel>
+            <Select
+              value={premium}
+              label="Type"
+              onChange={(e) => setPremium(e.target.value)}
+            >
+              <MenuItem value="">All</MenuItem>
+              <MenuItem value="true">Premium</MenuItem>
+              <MenuItem value="false">Free</MenuItem>
+            </Select>
+          </FormControl>
+          <FormControl size="small" sx={{ minWidth: 140 }}>
+            <InputLabel>Visibility</InputLabel>
+            <Select
+              value={visibility}
+              label="Visibility"
+              onChange={(e) => setVisibility(e.target.value)}
+            >
+              <MenuItem value="">All</MenuItem>
+              <MenuItem value="true">Public</MenuItem>
+              <MenuItem value="false">Private</MenuItem>
+            </Select>
+          </FormControl>
+          <FormControl size="small" sx={{ minWidth: 140 }}>
+            <InputLabel>Registration</InputLabel>
+            <Select
+              value={registered}
+              label="Registration"
+              onChange={(e) => setRegistered(e.target.value)}
+            >
+              <MenuItem value="">All</MenuItem>
+              <MenuItem value="true">Registered</MenuItem>
+              <MenuItem value="false">Not Registered</MenuItem>
+            </Select>
+          </FormControl>
+          {hasActiveFilters && (
+            <Button
+              size="small"
+              variant="outlined"
+              color="secondary"
+              onClick={clearFilters}
+              sx={{ minWidth: 120, height: 40 }}
+            >
+              Clear Filters
+            </Button>
+          )}
+        </Box>
       </Box>
       <Box sx={{ mb: 4 }}>
         <Box
@@ -173,18 +280,22 @@ export default function Projects() {
       </Box>
 
       <Grid container spacing={3}>
-        {projects?.map((project: Project) => (
+        {paginatedProjects?.map((project: Project) => (
           <ProjectCard key={project.id} project={project} />
         ))}
       </Grid>
 
-      {projects?.length === 0 && !loading && (
+      {paginatedProjects?.length === 0 && !loading && (
         <Box sx={{ textAlign: "center", py: 8 }}>
           <Typography variant="h6" color="text.secondary" gutterBottom>
-            No projects available
+            {hasActiveFilters
+              ? "No projects match your filters"
+              : "No projects available"}
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Check back later for new projects
+            {hasActiveFilters
+              ? "Try adjusting your filters"
+              : "Check back later for new projects"}
           </Typography>
         </Box>
       )}
