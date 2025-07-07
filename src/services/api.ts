@@ -19,6 +19,7 @@ const baseURL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
 const api: AxiosInstance = axios.create({
   baseURL,
   timeout: 10000, // 10 seconds
+  withCredentials: true, // Send cookies with cross-domain requests
   headers: {
     "Content-Type": "application/json",
   },
@@ -132,5 +133,9 @@ export const createSubmission = (
 ) => {
   return api.post(`/projects/${projectId}/tasks/${taskId}/submissions/`, data);
 };
+
+// Categories and Difficulties API
+export const fetchCategories = () => api.get("/categories/");
+export const fetchDifficulties = () => api.get("/difficulties/");
 
 export default api;
