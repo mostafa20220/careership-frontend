@@ -50,11 +50,7 @@ const signupUser = async (data: SignupData): Promise<AuthResponse> => {
 const authenticateWithGoogle = async (
   data: OAuthData
 ): Promise<AuthResponse> => {
-  const response = await api.post("/auth/dj-rest-auth/google/", data, {
-    headers: {
-      "X-CSRFToken": getCSRFToken(),
-    },
-  });
+  const response = await api.post("/auth/dj-rest-auth/google/", data);
   return response.data;
 };
 
@@ -67,15 +63,6 @@ const authenticateWithGitHub = async (
     redirect_uri: data.redirect_uri,
   });
   return response.data;
-};
-
-// Helper function to get CSRF token from cookies
-export const getCSRFToken = (): string => {
-  const cookies = document.cookie.split(";");
-  const csrfCookie = cookies.find((cookie) =>
-    cookie.trim().startsWith("csrftoken=")
-  );
-  return csrfCookie ? csrfCookie.split("=")[1] : "";
 };
 
 const setUser = useAuthStore.getState().setUser;

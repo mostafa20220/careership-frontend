@@ -1,6 +1,4 @@
-import { CssRounded } from "@mui/icons-material";
 import api from "../services/api";
-import { getCSRFToken } from "../hooks/useAuth";
 
 // OAuth configuration
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
@@ -50,21 +48,10 @@ const openPopup = (url: string, name: string): Window | null => {
 // Helper function to wait for popup result
 const waitForPopupResult = (popup: Window): Promise<OAuthPopupResult> => {
   return new Promise((resolve, reject) => {
+    let resolved = false;
+    
     const checkClosed = setInterval(() => {
-      if (
-        popup.location.href === popup.location.origin ||
-        popup.location.pathname === "blank"
-      ) {
-        return;
-      }
-
-      const params = toParams(popup.location.search.replace(/^\?/, ""));
-
-      if (params.code) {
-        resolve({ code: params.code, state: params.state });
-      }
-
-      if (popup.closed) {
+      if (popup.closed && !resolved) {
         clearInterval(checkClosed);
         reject(new Error("Authentication was cancelled"));
       }
@@ -75,9 +62,17 @@ const waitForPopupResult = (popup: Window): Promise<OAuthPopupResult> => {
 
       if (event.data.type === "OAUTH_SUCCESS") {
         console.log("OAUTH_SUCCESS", event.data);
+        resolved = true;
         clearInterval(checkClosed);
         window.removeEventListener("message", handleMessage);
-        popup.close();
+        
+        // Give the popup a moment to finish processing before closing
+        setTimeout(() => {
+          if (!popup.closed) {
+            popup.close();
+          }
+        }, 500);
+        
         resolve({
           access_token: event.data.access_token,
           code: event.data.code,
@@ -85,13 +80,20 @@ const waitForPopupResult = (popup: Window): Promise<OAuthPopupResult> => {
         });
       } else if (event.data.type === "OAUTH_ERROR") {
         console.log("OAUTH_ERROR", event.data);
+        resolved = true;
         clearInterval(checkClosed);
         window.removeEventListener("message", handleMessage);
-        popup.close();
+        
+        // Give the popup a moment to finish processing before closing
+        setTimeout(() => {
+          if (!popup.closed) {
+            popup.close();
+          }
+        }, 500);
+        
         reject(new Error(event.data.error || "Authentication failed"));
-      } else {
-        console.log("OAUTH_UNKNOWN", event.data);
       }
+      // Ignore unknown message types - they're usually from other sources
     };
 
     window.addEventListener("message", handleMessage);
@@ -171,7 +173,8 @@ export const handleOAuthCallback = async () => {
       { type: "OAUTH_SUCCESS", access_token: accessToken },
       window.location.origin
     );
-    window.close();
+    // Small delay to ensure message is processed before closing
+    setTimeout(() => window.close(), 100);
     return;
   }
 
