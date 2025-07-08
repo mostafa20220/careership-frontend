@@ -423,7 +423,7 @@ const AIProjectDrafts: React.FC = () => {
       if (statusFilter !== "all" && draft.status !== statusFilter) {
         return false;
       }
-      
+
       // Visibility filter
       if (visibilityFilter === "public" && !draft.is_public) {
         return false;
@@ -431,7 +431,7 @@ const AIProjectDrafts: React.FC = () => {
       if (visibilityFilter === "private" && draft.is_public) {
         return false;
       }
-      
+
       return true;
     });
 
@@ -444,9 +444,11 @@ const AIProjectDrafts: React.FC = () => {
       if (a.status !== "completed" && b.status === "completed") {
         return -1; // a goes before b
       }
-      
+
       // Within the same completion status, sort by creation date (latest first)
-      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      return (
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
     });
   }, [drafts, statusFilter, visibilityFilter]);
 
@@ -503,7 +505,7 @@ const AIProjectDrafts: React.FC = () => {
 
       await createDraft(payload);
       setCreateDialogOpen(false);
-      
+
       // Auto-select the newly created draft by fetching the updated list
       // and selecting the most recent one
       await fetchDrafts();
@@ -614,7 +616,10 @@ const AIProjectDrafts: React.FC = () => {
   };
 
   return (
-    <Container maxWidth={false} sx={{ height: "calc(100vh - 100px)", py: 2, px: 1 }}>
+    <Container
+      maxWidth={false}
+      sx={{ height: "calc(100vh - 100px)", py: 2, px: 1 }}
+    >
       <Box sx={{ display: "flex", height: "100%", gap: 2, maxWidth: "100vw" }}>
         {/* Left Sidebar - Drafts List */}
         <Paper
@@ -634,7 +639,10 @@ const AIProjectDrafts: React.FC = () => {
               AI Project Drafts
             </Typography>
             <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
-              <Chip label={`${filteredAndSortedDrafts.length} Drafts`} size="small" />
+              <Chip
+                label={`${filteredAndSortedDrafts.length} Drafts`}
+                size="small"
+              />
             </Box>
 
             {/* Filters */}
@@ -700,11 +708,18 @@ const AIProjectDrafts: React.FC = () => {
                     >
                       <ListItemText
                         primary={
-                          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 1,
+                            }}
+                          >
                             <Typography
                               variant="body2"
                               sx={{
-                                fontWeight: selectedDraftId === draft.id ? 600 : 400,
+                                fontWeight:
+                                  selectedDraftId === draft.id ? 600 : 400,
                                 ...(draft.status === "completed" && {
                                   color: "text.secondary",
                                   textDecoration: "none",
@@ -771,8 +786,8 @@ const AIProjectDrafts: React.FC = () => {
               <Box sx={{ p: 3, textAlign: "center" }}>
                 <AIIcon sx={{ fontSize: 48, color: "grey.300", mb: 2 }} />
                 <Typography variant="body2" color="text.secondary">
-                  {drafts.length === 0 
-                    ? "No drafts yet. Create your first AI project!" 
+                  {drafts.length === 0
+                    ? "No drafts yet. Create your first AI project!"
                     : "No drafts match the current filters."}
                 </Typography>
               </Box>
@@ -1032,396 +1047,432 @@ const AIProjectDrafts: React.FC = () => {
               <ProjectContentSkeleton />
             ) : (
               <Box>
-                <Card sx={{ mb: 2 }}>
-                  <CardContent>
-                    <Typography variant="h6" gutterBottom>
-                      Project Overview
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      paragraph
-                    >
-                      Created on {formatDate(selectedDraft.created_at)}
-                    </Typography>
-                    <Divider sx={{ my: 2 }} />
-                    <Typography variant="body1">
-                      {selectedDraft.status === "pending_review"
-                        ? "Your project draft is ready for review! The AI has generated the project content based on your requirements."
-                        : selectedDraft.status === "completed"
-                        ? "This project has been completed and finalized."
-                        : selectedDraft.status === "archived"
-                        ? "This draft has been archived due to generation failure. Please try refining with different requirements."
-                        : "🎯 Ready to generate your project! Click 'Refine Draft' to provide more details about your requirements, then let our AI create a comprehensive project structure, detailed task breakdown, and complete documentation tailored specifically to your needs. Transform your ideas into a fully-planned project!"}
-                    </Typography>
+                {/* Check if we have actual project content */}
+                {selectedDraft?.latest_project_json &&
+                Object.keys(selectedDraft.latest_project_json).length > 0 ? (
+                  // Show generated project content
+                  <Box>
+                    {selectedDraft.latest_project_json.name && (
+                      <Box
+                        sx={{
+                          mb: 3,
+                          p: 3,
+                          bgcolor: "primary.50",
+                          borderRadius: 2,
+                          border: "1px solid",
+                          borderColor: "primary.200",
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1,
+                            mb: 2,
+                          }}
+                        >
+                          <CodeIcon color="primary" sx={{ fontSize: 28 }} />
+                          <Typography
+                            variant="h5"
+                            color="primary.main"
+                            fontWeight="bold"
+                          >
+                            {selectedDraft.latest_project_json.name}
+                          </Typography>
+                        </Box>
 
-                    {selectedDraft.latest_project_json &&
-                      Object.keys(selectedDraft.latest_project_json).length >
-                        0 && (
-                        <Box sx={{ mt: 3 }}>
-                          {/* Project Header */}
-                          {selectedDraft.latest_project_json.name && (
-                            <Box
-                              sx={{
-                                mb: 3,
-                                p: 3,
-                                bgcolor: "primary.50",
-                                borderRadius: 2,
-                                border: "1px solid",
-                                borderColor: "primary.200",
-                              }}
-                            >
-                              <Box
-                                sx={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: 1,
-                                  mb: 2,
-                                }}
-                              >
-                                <CodeIcon
-                                  color="primary"
-                                  sx={{ fontSize: 28 }}
-                                />
-                                <Typography
-                                  variant="h5"
-                                  color="primary.main"
-                                  fontWeight="bold"
-                                >
-                                  {selectedDraft.latest_project_json.name}
-                                </Typography>
-                              </Box>
+                        {selectedDraft.latest_project_json.description && (
+                          <Typography
+                            variant="body1"
+                            color="text.primary"
+                            paragraph
+                          >
+                            {selectedDraft.latest_project_json.description}
+                          </Typography>
+                        )}
 
-                              {selectedDraft.latest_project_json
-                                .description && (
-                                <Typography
-                                  variant="body1"
-                                  color="text.primary"
-                                  paragraph
-                                >
-                                  {
-                                    selectedDraft.latest_project_json
-                                      .description
-                                  }
-                                </Typography>
-                              )}
-
-                              <Box
-                                sx={{
-                                  display: "flex",
-                                  gap: 1,
-                                  flexWrap: "wrap",
-                                  mt: 2,
-                                }}
-                              >
-                                {selectedDraft.latest_project_json.category && (
-                                  <Chip
-                                    label={
-                                      selectedDraft.latest_project_json.category
-                                    }
-                                    color="primary"
-                                    variant="filled"
-                                  />
-                                )}
-                                {selectedDraft.latest_project_json
-                                  .difficulty_level && (
-                                  <Chip
-                                    label={
-                                      selectedDraft.latest_project_json
-                                        .difficulty_level
-                                    }
-                                    color="secondary"
-                                    variant="filled"
-                                  />
-                                )}
-                                {selectedDraft.latest_project_json
-                                  .max_team_size && (
-                                  <Chip
-                                    label={`Team Size: ${selectedDraft.latest_project_json.max_team_size}`}
-                                    variant="outlined"
-                                  />
-                                )}
-                                {selectedDraft.latest_project_json
-                                  .is_premium !== undefined && (
-                                  <Chip
-                                    label={
-                                      selectedDraft.latest_project_json
-                                        .is_premium
-                                        ? "Premium"
-                                        : "Free"
-                                    }
-                                    color={
-                                      selectedDraft.latest_project_json
-                                        .is_premium
-                                        ? "warning"
-                                        : "success"
-                                    }
-                                    variant="outlined"
-                                  />
-                                )}
-                              </Box>
-                            </Box>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            gap: 1,
+                            flexWrap: "wrap",
+                            mt: 2,
+                          }}
+                        >
+                          {selectedDraft.latest_project_json.category && (
+                            <Chip
+                              label={selectedDraft.latest_project_json.category}
+                              color="primary"
+                              variant="filled"
+                            />
                           )}
+                          {selectedDraft.latest_project_json
+                            .difficulty_level && (
+                            <Chip
+                              label={
+                                selectedDraft.latest_project_json
+                                  .difficulty_level
+                              }
+                              color="secondary"
+                              variant="filled"
+                            />
+                          )}
+                          {selectedDraft.latest_project_json.max_team_size && (
+                            <Chip
+                              label={`Team Size: ${selectedDraft.latest_project_json.max_team_size}`}
+                              variant="outlined"
+                            />
+                          )}
+                          {selectedDraft.latest_project_json.is_premium !==
+                            undefined && (
+                            <Chip
+                              label={
+                                selectedDraft.latest_project_json.is_premium
+                                  ? "Premium"
+                                  : "Free"
+                              }
+                              color={
+                                selectedDraft.latest_project_json.is_premium
+                                  ? "warning"
+                                  : "success"
+                              }
+                              variant="outlined"
+                            />
+                          )}
+                        </Box>
+                      </Box>
+                    )}
 
-                          {/* Project Tasks */}
-                          {selectedDraft.latest_project_json.tasks &&
-                            Array.isArray(
-                              selectedDraft.latest_project_json.tasks
-                            ) && (
-                              <Box sx={{ mb: 3 }}>
-                                <Box
-                                  sx={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: 1,
-                                    mb: 3,
-                                  }}
-                                >
-                                  <TaskIcon
-                                    color="action"
-                                    sx={{ fontSize: 28 }}
-                                  />
-                                  <Typography variant="h5" fontWeight="bold">
-                                    Project Tasks (
-                                    {
-                                      selectedDraft.latest_project_json.tasks
-                                        .length
-                                    }
-                                    )
-                                  </Typography>
-                                </Box>
+                    {/* Project Tasks */}
+                    {selectedDraft.latest_project_json.tasks &&
+                      Array.isArray(
+                        selectedDraft.latest_project_json.tasks
+                      ) && (
+                        <Box sx={{ mb: 3 }}>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 1,
+                              mb: 3,
+                            }}
+                          >
+                            <TaskIcon color="action" sx={{ fontSize: 28 }} />
+                            <Typography variant="h5" fontWeight="bold">
+                              Project Tasks (
+                              {selectedDraft.latest_project_json.tasks.length})
+                            </Typography>
+                          </Box>
 
-                                <Box
-                                  sx={{
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    gap: 3,
-                                  }}
+                          <Box
+                            sx={{
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: 3,
+                            }}
+                          >
+                            {selectedDraft.latest_project_json.tasks.map(
+                              (task: any, index: number) => (
+                                <Card
+                                  key={index}
+                                  variant="outlined"
+                                  sx={{ bgcolor: "grey.50" }}
                                 >
-                                  {selectedDraft.latest_project_json.tasks.map(
-                                    (task: any, index: number) => (
-                                      <Card
-                                        key={index}
-                                        variant="outlined"
-                                        sx={{ bgcolor: "grey.50" }}
+                                  <CardContent>
+                                    <Typography
+                                      variant="h6"
+                                      fontWeight="bold"
+                                      gutterBottom
+                                      color="primary"
+                                    >
+                                      Task {index + 1}: {task.name}
+                                    </Typography>
+
+                                    {task.description && (
+                                      <Typography
+                                        variant="body1"
+                                        color="text.secondary"
+                                        paragraph
                                       >
-                                        <CardContent>
+                                        {task.description}
+                                      </Typography>
+                                    )}
+
+                                    {/* Task Details */}
+                                    <Box
+                                      sx={{
+                                        display: "flex",
+                                        gap: 1,
+                                        flexWrap: "wrap",
+                                        mb: 2,
+                                      }}
+                                    >
+                                      {task.difficulty_level && (
+                                        <Chip
+                                          label={`Difficulty: ${task.difficulty_level}`}
+                                          size="small"
+                                          color="secondary"
+                                          variant="outlined"
+                                        />
+                                      )}
+                                      {task.duration_in_days && (
+                                        <Chip
+                                          label={`Duration: ${
+                                            task.duration_in_days
+                                          } day${
+                                            task.duration_in_days > 1 ? "s" : ""
+                                          }`}
+                                          size="small"
+                                          color="info"
+                                          variant="outlined"
+                                        />
+                                      )}
+                                      {task.order !== undefined && (
+                                        <Chip
+                                          label={`Order: ${task.order + 1}`}
+                                          size="small"
+                                          variant="outlined"
+                                        />
+                                      )}
+                                    </Box>
+
+                                    {/* Prerequisites */}
+                                    {task.prerequisites &&
+                                      Array.isArray(task.prerequisites) &&
+                                      task.prerequisites.length > 0 && (
+                                        <Box sx={{ mb: 2 }}>
                                           <Typography
-                                            variant="h6"
-                                            fontWeight="bold"
+                                            variant="subtitle2"
                                             gutterBottom
-                                            color="primary"
                                           >
-                                            Task {index + 1}: {task.name}
+                                            📚 Prerequisites:
                                           </Typography>
-
-                                          {task.description && (
-                                            <Typography
-                                              variant="body1"
-                                              color="text.secondary"
-                                              paragraph
-                                            >
-                                              {task.description}
-                                            </Typography>
-                                          )}
-
-                                          {/* Task Details */}
                                           <Box
                                             sx={{
                                               display: "flex",
                                               gap: 1,
                                               flexWrap: "wrap",
-                                              mb: 2,
                                             }}
                                           >
-                                            {task.difficulty_level && (
-                                              <Chip
-                                                label={`Difficulty: ${task.difficulty_level}`}
-                                                size="small"
-                                                color="secondary"
-                                                variant="outlined"
-                                              />
-                                            )}
-                                            {task.duration_in_days && (
-                                              <Chip
-                                                label={`Duration: ${
-                                                  task.duration_in_days
-                                                } day${
-                                                  task.duration_in_days > 1
-                                                    ? "s"
-                                                    : ""
-                                                }`}
-                                                size="small"
-                                                color="info"
-                                                variant="outlined"
-                                              />
-                                            )}
-                                            {task.order !== undefined && (
-                                              <Chip
-                                                label={`Order: ${
-                                                  task.order + 1
-                                                }`}
-                                                size="small"
-                                                variant="outlined"
-                                              />
+                                            {task.prerequisites.map(
+                                              (
+                                                prereq: string,
+                                                prereqIndex: number
+                                              ) => (
+                                                <Chip
+                                                  key={prereqIndex}
+                                                  label={prereq}
+                                                  size="small"
+                                                  color="default"
+                                                  variant="outlined"
+                                                />
+                                              )
                                             )}
                                           </Box>
+                                        </Box>
+                                      )}
 
-                                          {/* Prerequisites */}
-                                          {task.prerequisites &&
-                                            Array.isArray(task.prerequisites) &&
-                                            task.prerequisites.length > 0 && (
-                                              <Box sx={{ mb: 2 }}>
-                                                <Typography
-                                                  variant="subtitle2"
-                                                  gutterBottom
-                                                >
-                                                  📚 Prerequisites:
-                                                </Typography>
+                                    {/* API Endpoints */}
+                                    {task.endpoints &&
+                                      Array.isArray(task.endpoints) &&
+                                      task.endpoints.length > 0 && (
+                                        <Box sx={{ mb: 2 }}>
+                                          <Typography
+                                            variant="subtitle2"
+                                            gutterBottom
+                                          >
+                                            🌐 API Endpoints (
+                                            {task.endpoints.length}):
+                                          </Typography>
+                                          <Box
+                                            sx={{
+                                              display: "flex",
+                                              flexDirection: "column",
+                                              gap: 1,
+                                            }}
+                                          >
+                                            {task.endpoints.map(
+                                              (
+                                                endpoint: any,
+                                                endpointIndex: number
+                                              ) => (
                                                 <Box
+                                                  key={endpointIndex}
                                                   sx={{
-                                                    display: "flex",
-                                                    gap: 1,
-                                                    flexWrap: "wrap",
+                                                    p: 2,
+                                                    bgcolor: "white",
+                                                    borderRadius: 1,
+                                                    border: "1px solid",
+                                                    borderColor: "grey.300",
                                                   }}
                                                 >
-                                                  {task.prerequisites.map(
-                                                    (
-                                                      prereq: string,
-                                                      prereqIndex: number
-                                                    ) => (
-                                                      <Chip
-                                                        key={prereqIndex}
-                                                        label={prereq}
-                                                        size="small"
-                                                        color="default"
-                                                        variant="outlined"
-                                                      />
-                                                    )
+                                                  <Box
+                                                    sx={{
+                                                      display: "flex",
+                                                      alignItems: "center",
+                                                      gap: 1,
+                                                      mb: 1,
+                                                    }}
+                                                  >
+                                                    <Chip
+                                                      label={
+                                                        endpoint.method || "GET"
+                                                      }
+                                                      size="small"
+                                                      color={
+                                                        endpoint.method ===
+                                                        "POST"
+                                                          ? "success"
+                                                          : endpoint.method ===
+                                                              "PUT" ||
+                                                            endpoint.method ===
+                                                              "PATCH"
+                                                          ? "warning"
+                                                          : endpoint.method ===
+                                                            "DELETE"
+                                                          ? "error"
+                                                          : "info"
+                                                      }
+                                                    />
+                                                    <Typography
+                                                      variant="body2"
+                                                      fontFamily="monospace"
+                                                      fontWeight="bold"
+                                                    >
+                                                      {endpoint.path ||
+                                                        endpoint.url ||
+                                                        "/"}
+                                                    </Typography>
+                                                  </Box>
+                                                  {endpoint.description && (
+                                                    <Typography
+                                                      variant="body2"
+                                                      color="text.secondary"
+                                                    >
+                                                      {endpoint.description}
+                                                    </Typography>
                                                   )}
                                                 </Box>
-                                              </Box>
+                                              )
                                             )}
-
-                                          {/* API Endpoints */}
-                                          {task.endpoints &&
-                                            Array.isArray(task.endpoints) &&
-                                            task.endpoints.length > 0 && (
-                                              <Box sx={{ mb: 2 }}>
-                                                <Typography
-                                                  variant="subtitle2"
-                                                  gutterBottom
-                                                >
-                                                  🌐 API Endpoints (
-                                                  {task.endpoints.length}):
-                                                </Typography>
-                                                <Box
-                                                  sx={{
-                                                    display: "flex",
-                                                    flexDirection: "column",
-                                                    gap: 1,
-                                                  }}
-                                                >
-                                                  {task.endpoints.map(
-                                                    (
-                                                      endpoint: any,
-                                                      endpointIndex: number
-                                                    ) => (
-                                                      <Box
-                                                        key={endpointIndex}
-                                                        sx={{
-                                                          p: 2,
-                                                          bgcolor: "white",
-                                                          borderRadius: 1,
-                                                          border: "1px solid",
-                                                          borderColor:
-                                                            "grey.300",
-                                                        }}
-                                                      >
-                                                        <Box
-                                                          sx={{
-                                                            display: "flex",
-                                                            alignItems:
-                                                              "center",
-                                                            gap: 1,
-                                                            mb: 1,
-                                                          }}
-                                                        >
-                                                          <Chip
-                                                            label={
-                                                              endpoint.method ||
-                                                              "GET"
-                                                            }
-                                                            size="small"
-                                                            color={
-                                                              endpoint.method ===
-                                                              "POST"
-                                                                ? "success"
-                                                                : endpoint.method ===
-                                                                    "PUT" ||
-                                                                  endpoint.method ===
-                                                                    "PATCH"
-                                                                ? "warning"
-                                                                : endpoint.method ===
-                                                                  "DELETE"
-                                                                ? "error"
-                                                                : "info"
-                                                            }
-                                                          />
-                                                          <Typography
-                                                            variant="body2"
-                                                            fontFamily="monospace"
-                                                            fontWeight="bold"
-                                                          >
-                                                            {endpoint.path ||
-                                                              endpoint.url ||
-                                                              "/"}
-                                                          </Typography>
-                                                        </Box>
-                                                        {endpoint.description && (
-                                                          <Typography
-                                                            variant="body2"
-                                                            color="text.secondary"
-                                                          >
-                                                            {
-                                                              endpoint.description
-                                                            }
-                                                          </Typography>
-                                                        )}
-                                                      </Box>
-                                                    )
-                                                  )}
-                                                </Box>
-                                              </Box>
-                                            )}
-                                        </CardContent>
-                                      </Card>
-                                    )
-                                  )}
-                                </Box>
-                              </Box>
+                                          </Box>
+                                        </Box>
+                                      )}
+                                  </CardContent>
+                                </Card>
+                              )
                             )}
+                          </Box>
                         </Box>
                       )}
-                  </CardContent>
-                </Card>
+                  </Box>
+                ) : (
+                  // Show empty state for drafts with no content
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      height: "60vh",
+                      flexDirection: "column",
+                      gap: 3,
+                      px: 4,
+                      textAlign: "center",
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        position: "relative",
+                        animation: "bounce 2s ease-in-out infinite",
+                        "@keyframes bounce": {
+                          "0%, 20%, 50%, 80%, 100%": {
+                            transform: "translateY(0)",
+                          },
+                          "40%": { transform: "translateY(-10px)" },
+                          "60%": { transform: "translateY(-5px)" },
+                        },
+                      }}
+                    >
+                      <AIIcon
+                        sx={{
+                          fontSize: 100,
+                          color: "primary.main",
+                          opacity: 0.6,
+                        }}
+                      />
+                      <Box
+                        sx={{
+                          position: "absolute",
+                          top: -5,
+                          right: -5,
+                          animation: "pulse 1.5s ease-in-out infinite",
+                          "@keyframes pulse": {
+                            "0%": { opacity: 0.4, transform: "scale(1)" },
+                            "50%": { opacity: 1, transform: "scale(1.1)" },
+                            "100%": { opacity: 0.4, transform: "scale(1)" },
+                          },
+                        }}
+                      >
+                        <Typography sx={{ fontSize: 24 }}>⚡</Typography>
+                      </Box>
+                    </Box>
 
-                {(!selectedDraft.latest_project_json ||
-                  Object.keys(selectedDraft.latest_project_json).length ===
-                    0) && (
-                  <Card>
-                    <CardContent>
-                      <Typography variant="h6" gutterBottom>
-                        Project Structure
+                    <Box sx={{ maxWidth: 500 }}>
+                      <Typography
+                        variant="h5"
+                        color="primary"
+                        gutterBottom
+                        fontWeight="bold"
+                      >
+                        AI is Ready to Generate!
                       </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        AI-generated project structure and files will be shown
-                        here based on the selected category (
-                        {selectedDraft.category}) and difficulty level (
-                        {selectedDraft.difficulty_level}).
+                      <Typography
+                        variant="body1"
+                        color="text.secondary"
+                        sx={{ mb: 3, lineHeight: 1.7 }}
+                      >
+                        This draft is waiting for AI magic! ✨ Use the{" "}
+                        <strong>refine input</strong> below to describe what you
+                        want to build, or ask for specific improvements. Our AI
+                        will generate a complete project structure, tasks, and
+                        documentation based on your selected category (
+                        <strong>{selectedDraft?.category}</strong>) and
+                        difficulty level (
+                        <strong>{selectedDraft?.difficulty_level}</strong>).
                       </Typography>
-                    </CardContent>
-                  </Card>
+
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "center",
+                          gap: 2,
+                          flexWrap: "wrap",
+                        }}
+                      >
+                        <Chip
+                          icon={<CodeIcon />}
+                          label="Project Structure"
+                          color="primary"
+                          variant="outlined"
+                          sx={{ fontSize: "0.875rem" }}
+                        />
+                        <Chip
+                          icon={<TaskIcon />}
+                          label="Task Breakdown"
+                          color="secondary"
+                          variant="outlined"
+                          sx={{ fontSize: "0.875rem" }}
+                        />
+                        <Chip
+                          icon={<AIIcon />}
+                          label="AI Documentation"
+                          color="info"
+                          variant="outlined"
+                          sx={{ fontSize: "0.875rem" }}
+                        />
+                      </Box>
+                    </Box>
+                  </Box>
                 )}
               </Box>
             )}
@@ -1451,18 +1502,33 @@ const AIProjectDrafts: React.FC = () => {
                     fullWidth
                     multiline
                     maxRows={4}
-                    placeholder="Tell the AI what changes you'd like to make to this project..."
+                    placeholder="Tell the AI what changes you'd like to make to this project (minimum 10 characters)..."
                     value={refinePrompt}
                     onChange={(e) => setRefinePrompt(e.target.value)}
                     onKeyPress={handleKeyPress}
                     variant="outlined"
                     size="small"
                     disabled={isLoading || isPolling}
+                    error={
+                      refinePrompt.length > 0 && refinePrompt.trim().length < 10
+                    }
+                    helperText={
+                      refinePrompt.length > 0 && refinePrompt.trim().length < 10
+                        ? `Please enter at least 10 characters (${
+                            refinePrompt.trim().length
+                          }/10)`
+                        : ""
+                    }
                   />
                   <Button
                     variant="contained"
                     onClick={handleRefineDraft}
-                    disabled={!refinePrompt.trim() || isLoading || isPolling}
+                    disabled={
+                      !refinePrompt.trim() ||
+                      refinePrompt.trim().length < 10 ||
+                      isLoading ||
+                      isPolling
+                    }
                     startIcon={<SendIcon />}
                     sx={{
                       bgcolor: "primary.main",
