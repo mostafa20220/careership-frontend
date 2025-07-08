@@ -104,12 +104,17 @@ const GeneratingLoadingIndicator: React.FC = () => {
       sx={{
         position: "relative",
         overflow: "hidden",
-        height: 200,
-        borderRadius: 2,
-        bgcolor: "grey.50",
+        width: "100%",
+        maxWidth: 600,
+        height: 350,
+        borderRadius: 3,
+        bgcolor: "background.paper",
+        boxShadow: "0 8px 32px rgba(0,0,0,0.1)",
+        border: "1px solid",
+        borderColor: "divider",
       }}
     >
-      {/* Background pattern */}
+      {/* Animated background pattern */}
       <Box
         sx={{
           position: "absolute",
@@ -118,72 +123,162 @@ const GeneratingLoadingIndicator: React.FC = () => {
           right: 0,
           bottom: 0,
           background:
-            "linear-gradient(45deg, #f5f5f5 25%, transparent 25%), linear-gradient(-45deg, #f5f5f5 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #f5f5f5 75%), linear-gradient(-45deg, transparent 75%, #f5f5f5 75%)",
-          backgroundSize: "20px 20px",
-          backgroundPosition: "0 0, 0 10px, 10px -10px, -10px 0px",
-          opacity: 0.3,
+            "radial-gradient(circle at 25% 25%, rgba(25, 118, 210, 0.1) 0%, transparent 50%), radial-gradient(circle at 75% 75%, rgba(25, 118, 210, 0.1) 0%, transparent 50%)",
+          animation: "bgShift 4s ease-in-out infinite alternate",
+          "@keyframes bgShift": {
+            "0%": {
+              transform: "rotate(0deg) scale(1)",
+            },
+            "100%": {
+              transform: "rotate(2deg) scale(1.02)",
+            },
+          },
         }}
       />
 
-      {/* Lightning animation */}
+      {/* Flowing energy lines */}
       <Box
         sx={{
           position: "absolute",
-          top: -50,
-          left: 0,
+          top: 0,
+          left: "-100%",
           right: 0,
-          height: 50,
+          height: "100%",
           background:
-            "linear-gradient(90deg, transparent, rgba(25, 118, 210, 0.3), rgba(25, 118, 210, 0.6), rgba(25, 118, 210, 0.3), transparent)",
-          animation: "lightning 2s ease-in-out infinite",
-          "@keyframes lightning": {
+            "linear-gradient(90deg, transparent, rgba(25, 118, 210, 0.2), rgba(25, 118, 210, 0.4), rgba(25, 118, 210, 0.2), transparent)",
+          animation: "energyFlow 3s ease-in-out infinite",
+          "@keyframes energyFlow": {
             "0%": {
-              transform: "translateY(0px)",
+              transform: "translateX(0%)",
               opacity: 0,
             },
             "50%": {
-              transform: "translateY(150px)",
+              transform: "translateX(50%)",
               opacity: 1,
             },
             "100%": {
-              transform: "translateY(300px)",
+              transform: "translateX(200%)",
               opacity: 0,
             },
           },
         }}
       />
 
-      {/* Content */}
+      {/* Main content */}
       <Box
         sx={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
+          position: "relative",
+          height: "100%",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
           textAlign: "center",
           zIndex: 1,
+          p: 4,
         }}
       >
-        <LightningIcon
+        {/* AI Brain Icon with pulsing effect */}
+        <Box
           sx={{
-            fontSize: 48,
-            color: "primary.main",
-            mb: 2,
-            animation: "pulse 1.5s ease-in-out infinite",
-            "@keyframes pulse": {
-              "0%": { opacity: 0.5, transform: "scale(1)" },
-              "50%": { opacity: 1, transform: "scale(1.1)" },
-              "100%": { opacity: 0.5, transform: "scale(1)" },
-            },
+            position: "relative",
+            mb: 3,
           }}
-        />
-        <Typography variant="h6" color="primary" gutterBottom>
+        >
+          <LightningIcon
+            sx={{
+              fontSize: 80,
+              color: "primary.main",
+              animation: "brainPulse 2s ease-in-out infinite",
+              "@keyframes brainPulse": {
+                "0%": { opacity: 0.6, transform: "scale(1)" },
+                "50%": { opacity: 1, transform: "scale(1.1)" },
+                "100%": { opacity: 0.6, transform: "scale(1)" },
+              },
+            }}
+          />
+          
+          {/* Orbiting particles */}
+          {[0, 1, 2].map((i) => (
+            <Box
+              key={i}
+              sx={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                width: 8,
+                height: 8,
+                borderRadius: "50%",
+                bgcolor: "primary.main",
+                animation: `orbit${i} 3s linear infinite`,
+                transformOrigin: "0 0",
+                [`@keyframes orbit${i}`]: {
+                  "0%": {
+                    transform: `translate(-50%, -50%) rotate(${i * 120}deg) translateX(50px) rotate(-${i * 120}deg)`,
+                  },
+                  "100%": {
+                    transform: `translate(-50%, -50%) rotate(${i * 120 + 360}deg) translateX(50px) rotate(-${i * 120 + 360}deg)`,
+                  },
+                },
+              }}
+            />
+          ))}
+        </Box>
+
+        <Typography 
+          variant="h5" 
+          color="primary" 
+          gutterBottom
+          fontWeight="bold"
+          sx={{
+            background: "linear-gradient(45deg, #1976d2, #42a5f5)",
+            backgroundClip: "text",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}
+        >
           AI is generating your project...
         </Typography>
-        <Typography variant="body2" color="text.secondary">
-          This may take a few moments. Please wait while the AI crafts your
-          perfect project.
+        
+        <Typography 
+          variant="body1" 
+          color="text.secondary"
+          sx={{ 
+            maxWidth: 400,
+            lineHeight: 1.6,
+            opacity: 0.8,
+          }}
+        >
+          Our advanced AI is crafting a personalized project structure, 
+          tasks, and documentation tailored specifically for you. 
+          This magical process will be worth the wait!
         </Typography>
+
+        {/* Progress indicator */}
+        <Box sx={{ mt: 3, width: "80%", maxWidth: 300 }}>
+          <Box
+            sx={{
+              height: 4,
+              bgcolor: "grey.200",
+              borderRadius: 2,
+              overflow: "hidden",
+              position: "relative",
+            }}
+          >
+            <Box
+              sx={{
+                height: "100%",
+                background: "linear-gradient(90deg, #1976d2, #42a5f5, #1976d2)",
+                backgroundSize: "200% 100%",
+                animation: "progressShimmer 2s ease-in-out infinite",
+                "@keyframes progressShimmer": {
+                  "0%": { backgroundPosition: "-200% 0" },
+                  "100%": { backgroundPosition: "200% 0" },
+                },
+              }}
+            />
+          </Box>
+        </Box>
       </Box>
     </Box>
   );
@@ -824,6 +919,7 @@ const AIProjectDrafts: React.FC = () => {
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
+                minHeight: 40,
               }}
             >
               <Typography variant="h6" color="primary">
@@ -836,23 +932,31 @@ const AIProjectDrafts: React.FC = () => {
                 selectedDraft.status !== "completed" &&
                 selectedDraft.latest_project_json &&
                 Object.keys(selectedDraft.latest_project_json).length > 0 && (
-                  <Button
-                    variant="contained"
-                    color="success"
-                    onClick={handleFinalizeDraft}
-                    disabled={isLoading || isPolling}
-                    startIcon={<CheckIcon />}
-                    size="small"
+                  <Box
                     sx={{
-                      px: 2,
-                      "&:disabled": {
-                        bgcolor: "grey.300",
-                        color: "grey.500",
-                      },
+                      display: "flex",
+                      alignItems: "center",
+                      height: "100%",
                     }}
                   >
-                    {isLoading ? "Finalizing..." : "Finalize Project"}
-                  </Button>
+                    <Button
+                      variant="contained"
+                      color="success"
+                      onClick={handleFinalizeDraft}
+                      disabled={isLoading || isPolling}
+                      startIcon={<CheckIcon />}
+                      size="small"
+                      sx={{
+                        px: 2,
+                        "&:disabled": {
+                          bgcolor: "grey.300",
+                          color: "grey.500",
+                        },
+                      }}
+                    >
+                      {isLoading ? "Finalizing..." : "Finalize Project"}
+                    </Button>
+                  </Box>
                 )}
             </Box>
 
@@ -1025,23 +1129,16 @@ const AIProjectDrafts: React.FC = () => {
                 </Box>
               </Box>
             ) : selectedDraft.status === "generating" ? (
-              <Box>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  height: "100%",
+                  minHeight: "60vh",
+                }}
+              >
                 <GeneratingLoadingIndicator />
-                {isPolling && (
-                  <Box
-                    sx={{
-                      mt: 2,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 1,
-                    }}
-                  >
-                    <CircularProgress size={16} />
-                    <Typography variant="body2" color="text.secondary">
-                      Checking for updates every 3 seconds...
-                    </Typography>
-                  </Box>
-                )}
               </Box>
             ) : isLoading ? (
               <ProjectContentSkeleton />
