@@ -119,7 +119,7 @@ export const fetchProjectSubmissions = (
   projectId: string | number,
   taskId?: string | number
 ) => {
-  let url = `/projects/${projectId}/submissions`;
+  let url = `/projects/${projectId}/submissions/`;
   if (taskId) {
     url += `?task_id=${taskId}`;
   }

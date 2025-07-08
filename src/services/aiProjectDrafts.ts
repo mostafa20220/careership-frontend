@@ -27,14 +27,14 @@ export interface RefineProjectDraftResponse {
   // Empty response body for 200 OK
 }
 
-// List all project drafts (GET - no trailing slash)
+// List all project drafts (GET - with trailing slash)
 export const listProjectDrafts = (filters?: {
   name?: string;
   category?: number;
   difficulty_level?: number;
   is_public?: boolean;
 }) => {
-  return api.get<ProjectDraft[]>("/projects/drafts", { params: filters });
+  return api.get<ProjectDraft[]>("/projects/drafts/", { params: filters });
 };
 
 // Create a new project draft (POST - with trailing slash)
@@ -42,9 +42,9 @@ export const createProjectDraft = (data: CreateProjectDraftRequest) => {
   return api.post<ProjectDraft>("/projects/drafts/", data);
 };
 
-// Get a specific project draft (GET - no trailing slash)
+// Get a specific project draft (GET - with trailing slash)
 export const getProjectDraft = (draftId: number) => {
-  return api.get<ProjectDraft>(`/projects/drafts/${draftId}`);
+  return api.get<ProjectDraft>(`/projects/drafts/${draftId}/`);
 };
 
 // Refine an existing project draft (POST - with trailing slash)
