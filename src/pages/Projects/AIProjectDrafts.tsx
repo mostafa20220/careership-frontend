@@ -411,8 +411,44 @@ const AIProjectDrafts: React.FC = () => {
   >(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [difficulties, setDifficulties] = useState<Difficulty[]>([]);
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [visibilityFilter, setVisibilityFilter] = useState<string>("all");
 
   const selectedDraft = drafts.find((draft) => draft.id === selectedDraftId);
+
+  // Filter and sort drafts
+  const filteredAndSortedDrafts = React.useMemo(() => {
+    let filtered = drafts.filter((draft) => {
+      // Status filter
+      if (statusFilter !== "all" && draft.status !== statusFilter) {
+        return false;
+      }
+      
+      // Visibility filter
+      if (visibilityFilter === "public" && !draft.is_public) {
+        return false;
+      }
+      if (visibilityFilter === "private" && draft.is_public) {
+        return false;
+      }
+      
+      return true;
+    });
+
+    // Sort: completed drafts at the end, then by creation date (latest first)
+    return filtered.sort((a, b) => {
+      // First, separate completed from non-completed
+      if (a.status === "completed" && b.status !== "completed") {
+        return 1; // a goes after b
+      }
+      if (a.status !== "completed" && b.status === "completed") {
+        return -1; // a goes before b
+      }
+      
+      // Within the same completion status, sort by creation date (latest first)
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
+  }, [drafts, statusFilter, visibilityFilter]);
 
   // Fetch categories and difficulties on component mount
   useEffect(() => {
@@ -598,7 +634,39 @@ const AIProjectDrafts: React.FC = () => {
               AI Project Drafts
             </Typography>
             <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
-              <Chip label={`${drafts.length} Drafts`} size="small" />
+              <Chip label={`${filteredAndSortedDrafts.length} Drafts`} size="small" />
+            </Box>
+
+            {/* Filters */}
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              <FormControl size="small" fullWidth>
+                <InputLabel>Status</InputLabel>
+                <Select
+                  value={statusFilter}
+                  label="Status"
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                >
+                  <MenuItem value="all">All Status</MenuItem>
+                  <MenuItem value="draft">Draft</MenuItem>
+                  <MenuItem value="generating">Generating</MenuItem>
+                  <MenuItem value="pending_review">Pending Review</MenuItem>
+                  <MenuItem value="completed">Completed</MenuItem>
+                  <MenuItem value="archived">Archived</MenuItem>
+                </Select>
+              </FormControl>
+
+              <FormControl size="small" fullWidth>
+                <InputLabel>Visibility</InputLabel>
+                <Select
+                  value={visibilityFilter}
+                  label="Visibility"
+                  onChange={(e) => setVisibilityFilter(e.target.value)}
+                >
+                  <MenuItem value="all">All</MenuItem>
+                  <MenuItem value="public">Public</MenuItem>
+                  <MenuItem value="private">Private</MenuItem>
+                </Select>
+              </FormControl>
             </Box>
           </Box>
 
@@ -608,7 +676,7 @@ const AIProjectDrafts: React.FC = () => {
               <DraftSkeleton />
             ) : (
               <List disablePadding>
-                {drafts.map((draft) => (
+                {filteredAndSortedDrafts.map((draft) => (
                   <ListItem key={draft.id} disablePadding>
                     <ListItemButton
                       selected={selectedDraftId === draft.id}
@@ -699,11 +767,13 @@ const AIProjectDrafts: React.FC = () => {
               </List>
             )}
 
-            {drafts.length === 0 && !isLoading && (
+            {filteredAndSortedDrafts.length === 0 && !isLoading && (
               <Box sx={{ p: 3, textAlign: "center" }}>
                 <AIIcon sx={{ fontSize: 48, color: "grey.300", mb: 2 }} />
                 <Typography variant="body2" color="text.secondary">
-                  No drafts yet. Create your first AI project!
+                  {drafts.length === 0 
+                    ? "No drafts yet. Create your first AI project!" 
+                    : "No drafts match the current filters."}
                 </Typography>
               </Box>
             )}
@@ -738,7 +808,7 @@ const AIProjectDrafts: React.FC = () => {
               sx={{
                 display: "flex",
                 justifyContent: "space-between",
-                alignItems: "flex-start",
+                alignItems: "center",
               }}
             >
               <Typography variant="h6" color="primary">
