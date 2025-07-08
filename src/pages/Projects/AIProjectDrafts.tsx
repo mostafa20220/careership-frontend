@@ -467,6 +467,11 @@ const AIProjectDrafts: React.FC = () => {
 
       await createDraft(payload);
       setCreateDialogOpen(false);
+      
+      // Auto-select the newly created draft by fetching the updated list
+      // and selecting the most recent one
+      await fetchDrafts();
+      // The store should handle selecting the new draft automatically
     } catch (error) {
       console.error("Failed to create draft:", error);
     }
@@ -527,7 +532,9 @@ const AIProjectDrafts: React.FC = () => {
     if (selectedDraftId) {
       try {
         await finalizeDraft(selectedDraftId);
-        // The store will handle removing the draft from the list and clearing selection
+        // The draft should stay in the list but be marked as completed
+        // Refresh the drafts list to get the updated status
+        await fetchDrafts();
       } catch (error) {
         console.error("Failed to finalize draft:", error);
       }
@@ -571,13 +578,15 @@ const AIProjectDrafts: React.FC = () => {
   };
 
   return (
-    <Container maxWidth="xl" sx={{ height: "calc(100vh - 100px)", py: 2 }}>
-      <Box sx={{ display: "flex", height: "100%", gap: 2 }}>
+    <Container maxWidth={false} sx={{ height: "calc(100vh - 100px)", py: 2, px: 1 }}>
+      <Box sx={{ display: "flex", height: "100%", gap: 2, maxWidth: "100vw" }}>
         {/* Left Sidebar - Drafts List */}
         <Paper
           elevation={2}
           sx={{
-            width: 320,
+            width: 280,
+            minWidth: 280,
+            maxWidth: 280,
             display: "flex",
             flexDirection: "column",
             overflow: "hidden",
@@ -613,10 +622,40 @@ const AIProjectDrafts: React.FC = () => {
                           borderRight: 3,
                           borderColor: "primary.main",
                         },
+                        ...(draft.status === "completed" && {
+                          bgcolor: "grey.50",
+                          "&:hover": {
+                            bgcolor: "grey.100",
+                          },
+                        }),
                       }}
                     >
                       <ListItemText
-                        primary={draft.name || "Untitled Project"}
+                        primary={
+                          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                            <Typography
+                              variant="body2"
+                              sx={{
+                                fontWeight: selectedDraftId === draft.id ? 600 : 400,
+                                ...(draft.status === "completed" && {
+                                  color: "text.secondary",
+                                  textDecoration: "none",
+                                }),
+                              }}
+                            >
+                              {draft.name || "Untitled Project"}
+                            </Typography>
+                            {draft.status === "completed" && (
+                              <Chip
+                                label="Completed"
+                                size="small"
+                                color="success"
+                                variant="outlined"
+                                sx={{ fontSize: "0.7rem", height: 20 }}
+                              />
+                            )}
+                          </Box>
+                        }
                         secondary={
                           !draft.name ? (
                             <Typography
@@ -627,10 +666,6 @@ const AIProjectDrafts: React.FC = () => {
                             </Typography>
                           ) : null
                         }
-                        primaryTypographyProps={{
-                          fontWeight: selectedDraftId === draft.id ? 600 : 400,
-                          noWrap: true,
-                        }}
                       />
                       <Box
                         sx={{
@@ -641,18 +676,22 @@ const AIProjectDrafts: React.FC = () => {
                           gap: 0.5,
                         }}
                       >
-                        {draft.is_public ? (
+                        {draft.status === "completed" ? (
+                          <HistoryIcon fontSize="small" color="success" />
+                        ) : draft.is_public ? (
                           <PublicIcon fontSize="small" color="primary" />
                         ) : (
                           <PrivateIcon fontSize="small" color="action" />
                         )}
-                        <IconButton
-                          size="small"
-                          onClick={(e) => handleOpenMenu(e, draft.id)}
-                          sx={{ p: 0.5 }}
-                        >
-                          <MoreVertIcon fontSize="small" />
-                        </IconButton>
+                        {draft.status !== "completed" && (
+                          <IconButton
+                            size="small"
+                            onClick={(e) => handleOpenMenu(e, draft.id)}
+                            sx={{ p: 0.5 }}
+                          >
+                            <MoreVertIcon fontSize="small" />
+                          </IconButton>
+                        )}
                       </Box>
                     </ListItemButton>
                   </ListItem>
