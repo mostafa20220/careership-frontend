@@ -796,21 +796,109 @@ const AIProjectDrafts: React.FC = () => {
                   justifyContent: "center",
                   height: "100%",
                   flexDirection: "column",
-                  gap: 2,
+                  gap: 3,
+                  px: 4,
                 }}
               >
-                <AIIcon sx={{ fontSize: 80, color: "grey.300" }} />
-                <Typography variant="h6" color="text.secondary">
-                  Select a draft to view project details
-                </Typography>
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{ textAlign: "center" }}
+                <Box
+                  sx={{
+                    position: "relative",
+                    animation: "float 3s ease-in-out infinite",
+                    "@keyframes float": {
+                      "0%": { transform: "translateY(0px)" },
+                      "50%": { transform: "translateY(-10px)" },
+                      "100%": { transform: "translateY(0px)" },
+                    },
+                  }}
                 >
-                  Choose a draft from the sidebar or create a new one to get
-                  started
-                </Typography>
+                  <AIIcon
+                    sx={{ fontSize: 120, color: "primary.main", opacity: 0.7 }}
+                  />
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      top: -10,
+                      right: -10,
+                      width: 40,
+                      height: 40,
+                      borderRadius: "50%",
+                      bgcolor: "primary.main",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      animation: "sparkle 2s ease-in-out infinite",
+                      "@keyframes sparkle": {
+                        "0%, 100%": { opacity: 0.3, transform: "scale(0.8)" },
+                        "50%": { opacity: 1, transform: "scale(1.2)" },
+                      },
+                    }}
+                  >
+                    <Typography sx={{ fontSize: 20 }}>✨</Typography>
+                  </Box>
+                </Box>
+
+                <Box sx={{ textAlign: "center", maxWidth: 480 }}>
+                  <Typography
+                    variant="h4"
+                    color="primary"
+                    gutterBottom
+                    fontWeight="bold"
+                    sx={{ mb: 2 }}
+                  >
+                    Welcome to AI Project Generator!
+                  </Typography>
+                  <Typography
+                    variant="h6"
+                    color="text.secondary"
+                    sx={{ mb: 3, fontWeight: 400 }}
+                  >
+                    Ready to create something amazing? Let our AI help you build
+                    your next project!
+                  </Typography>
+                  <Typography
+                    variant="body1"
+                    color="text.secondary"
+                    sx={{ mb: 4, lineHeight: 1.6 }}
+                  >
+                    🚀 Select a draft from the sidebar to view details, or click
+                    the <strong>+</strong> button to create your first
+                    AI-generated project. Our intelligent system will create a
+                    complete project structure, tasks, and documentation
+                    tailored to your needs.
+                  </Typography>
+
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                      gap: 2,
+                      flexWrap: "wrap",
+                      mt: 3,
+                    }}
+                  >
+                    <Chip
+                      icon={<CodeIcon />}
+                      label="Smart Code Structure"
+                      color="primary"
+                      variant="outlined"
+                      sx={{ fontSize: "0.875rem", py: 2 }}
+                    />
+                    <Chip
+                      icon={<TaskIcon />}
+                      label="Detailed Task Breakdown"
+                      color="secondary"
+                      variant="outlined"
+                      sx={{ fontSize: "0.875rem", py: 2 }}
+                    />
+                    <Chip
+                      icon={<AIIcon />}
+                      label="AI-Powered Generation"
+                      color="success"
+                      variant="outlined"
+                      sx={{ fontSize: "0.875rem", py: 2 }}
+                    />
+                  </Box>
+                </Box>
               </Box>
             ) : selectedDraft.status === "generating" ? (
               <Box>
@@ -855,7 +943,7 @@ const AIProjectDrafts: React.FC = () => {
                         ? "This project has been completed and finalized."
                         : selectedDraft.status === "archived"
                         ? "This draft has been archived due to generation failure. Please try refining with different requirements."
-                        : "This is where the AI-generated project content will be displayed. The project details, structure, and implementation guidelines will appear here once the AI processes the draft requirements."}
+                        : "🎯 Ready to generate your project! Click 'Refine Draft' to provide more details about your requirements, then let our AI create a comprehensive project structure, detailed task breakdown, and complete documentation tailored specifically to your needs. Transform your ideas into a fully-planned project!"}
                     </Typography>
 
                     {selectedDraft.latest_project_json &&
