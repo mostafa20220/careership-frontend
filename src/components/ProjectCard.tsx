@@ -17,6 +17,7 @@ import {
   Group as GroupIcon,
   TrendingUp as TrendingUpIcon,
   Category as CategoryIcon,
+  EmojiEvents as TrophyIcon,
 } from "@mui/icons-material";
 import type { Project } from "../types/project";
 
@@ -176,38 +177,54 @@ function ProjectCard({ project }: { project: Project }) {
             project.tasks &&
             project.tasks.length > 0 && (
               <Box sx={{ display: "flex", alignItems: "center" }}>
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{ fontSize: 14 }}
-                >
-                  Progress:{" "}
-                  {project.tasks.filter((task) => task.is_passed).length}/
-                  {project.tasks.length} tasks
-                </Typography>
-                <Box
-                  sx={{
-                    ml: 1,
-                    width: 60,
-                    height: 4,
-                    borderRadius: 2,
-                    bgcolor: "grey.300",
-                    overflow: "hidden",
-                  }}
-                >
-                  <Box
-                    sx={{
-                      width: `${
-                        (project.tasks.filter((task) => task.is_passed).length /
-                          project.tasks.length) *
-                        100
-                      }%`,
-                      height: "100%",
-                      bgcolor: "success.main",
-                      transition: "width 0.3s ease",
-                    }}
-                  />
-                </Box>
+                {/* Check if project is completed */}
+                {project.tasks.every(task => task.is_passed) ? (
+                  <>
+                    <TrophyIcon sx={{ color: '#FFD700', fontSize: 16, mr: 0.5 }} />
+                    <Typography
+                      variant="body2"
+                      color="success.main"
+                      sx={{ fontSize: 14, fontWeight: 'bold' }}
+                    >
+                      Completed! 🎉
+                    </Typography>
+                  </>
+                ) : (
+                  <>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ fontSize: 14 }}
+                    >
+                      Progress:{" "}
+                      {project.tasks.filter((task) => task.is_passed).length}/
+                      {project.tasks.length} tasks
+                    </Typography>
+                    <Box
+                      sx={{
+                        ml: 1,
+                        width: 60,
+                        height: 4,
+                        borderRadius: 2,
+                        bgcolor: "grey.300",
+                        overflow: "hidden",
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          width: `${
+                            (project.tasks.filter((task) => task.is_passed).length /
+                              project.tasks.length) *
+                            100
+                          }%`,
+                          height: "100%",
+                          bgcolor: "success.main",
+                          transition: "width 0.3s ease",
+                        }}
+                      />
+                    </Box>
+                  </>
+                )}
               </Box>
             )}
         </CardContent>

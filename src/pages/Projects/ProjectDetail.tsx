@@ -28,6 +28,7 @@ import {
   School as SchoolIcon,
   CheckCircle as CheckCircleIcon,
   ChevronRight as ChevronRightIcon,
+  EmojiEvents as TrophyIcon,
 } from "@mui/icons-material";
 import type { Project, Task } from "../../types/project";
 import { difficultyColors, categoryColors } from "../../constants/projects";
@@ -309,11 +310,48 @@ export default function ProjectDetail() {
 
       {/* Tasks Section */}
       <Paper elevation={4} sx={{ p: 3, borderRadius: 4, mb: 5 }}>
-        <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-          <AssignmentIcon sx={{ mr: 1 }} />
-          <Typography variant="h5" fontWeight={600}>
-            Project Tasks
-          </Typography>
+        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <AssignmentIcon sx={{ mr: 1 }} />
+            <Typography variant="h5" fontWeight={600}>
+              Project Tasks
+            </Typography>
+            {/* Project completion indicator */}
+            {project.tasks && project.tasks.length > 0 && project.tasks.every(task => task.is_passed) && (
+              <Box sx={{ ml: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+                <TrophyIcon sx={{ color: '#FFD700', fontSize: 24 }} />
+                <Chip 
+                  label="All Completed!" 
+                  color="success" 
+                  variant="filled"
+                  size="small"
+                  sx={{ fontWeight: 'bold' }}
+                />
+              </Box>
+            )}
+          </Box>
+          {/* Progress indicator */}
+          {project.tasks && project.tasks.length > 0 && (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 150 }}>
+              <Typography variant="body2" color="text.secondary">
+                {project.tasks.filter(task => task.is_passed).length}/{project.tasks.length}
+              </Typography>
+              <Box sx={{ 
+                width: 80, 
+                height: 6, 
+                borderRadius: 3, 
+                bgcolor: 'grey.300',
+                overflow: 'hidden'
+              }}>
+                <Box sx={{ 
+                  width: `${(project.tasks.filter(task => task.is_passed).length / project.tasks.length) * 100}%`,
+                  height: '100%',
+                  bgcolor: project.tasks.every(task => task.is_passed) ? '#FFD700' : 'primary.main',
+                  transition: 'width 0.3s ease, background-color 0.3s ease'
+                }} />
+              </Box>
+            </Box>
+          )}
         </Box>
         <Divider sx={{ mb: 2 }} />
         {project.tasks && project.tasks.length > 0 ? (
