@@ -87,6 +87,37 @@ export default function TaskDetail() {
   // Mobile drawer state
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  // Helper function to check if user can access a specific task
+  const checkTaskAccess = (taskToCheck: Task, allTasks: Task[]): boolean => {
+    // Sort tasks by order (or by ID if order is not available)
+    const sortedTasks = [...allTasks].sort((a, b) => {
+      if (a.order !== undefined && b.order !== undefined) {
+        return a.order - b.order;
+      }
+      return a.id - b.id;
+    });
+    
+    const currentTaskIndex = sortedTasks.findIndex(t => t.id === taskToCheck.id);
+    
+    // First task is always accessible
+    if (currentTaskIndex === 0) {
+      return true;
+    }
+    
+    // Check if all previous tasks have been passed
+    for (let i = 0; i < currentTaskIndex; i++) {
+      const previousTask = sortedTasks[i];
+      if (!previousTask.is_passed) {
+        return false;
+      }
+    }
+    
+    return true;
+  };
+
+  // Check if current task can be accessed
+  const canAccessCurrentTask = task && projectTasks.length > 0 ? checkTaskAccess(task, projectTasks) : true;
+
   useEffect(() => {
     // Check authentication first
     if (!isAuthenticated) {
@@ -188,16 +219,23 @@ export default function TaskDetail() {
       <List sx={{ width: "100%" }}>
         {projectTasks.map((t) => {
           const isSelected = t.id === Number(taskId);
+          const canAccessThisTask = checkTaskAccess(t, projectTasks);
+          const isPassed = t.is_passed;
+          
           return (
             <ListItem
               key={t.id}
-              component={Link}
-              to={`/projects/${projectId}/tasks/${t.id}`}
+              component={canAccessThisTask ? Link : "div"}
+              to={canAccessThisTask ? `/projects/${projectId}/tasks/${t.id}` : undefined}
               sx={{
                 textDecoration: "none",
                 bgcolor: isSelected ? "primary.main" : "transparent",
+                opacity: canAccessThisTask ? 1 : 0.6,
+                cursor: canAccessThisTask ? "pointer" : "default",
                 "&:hover": {
-                  bgcolor: isSelected ? "primary.dark" : "action.hover",
+                  bgcolor: canAccessThisTask 
+                    ? (isSelected ? "primary.dark" : "action.hover")
+                    : "transparent",
                 },
                 "& .MuiListItemIcon-root, & .MuiListItemText-root": {
                   color: isSelected ? "primary.contrastText" : "text.primary",
@@ -205,18 +243,50 @@ export default function TaskDetail() {
               }}
             >
               <ListItemIcon>
-                <AssignmentIcon />
+                {isPassed ? (
+                  <CheckCircleIcon color="success" />
+                ) : canAccessThisTask ? (
+                  <AssignmentIcon />
+                ) : (
+                  <LockIcon color="disabled" />
+                )}
               </ListItemIcon>
               <ListItemText
-                primary={t.name}
-                secondary={
-                  <Box sx={{ mt: 0.5, display: "flex", alignItems: "center" }}>
-                    <Tooltip title={`Difficulty: ${t.difficulty_level}`}>
-                      <Box component="span" sx={{ display: "flex" }}>
-                        {getDifficultyIcon(t.difficulty_level)}
-                      </Box>
-                    </Tooltip>
+                primary={
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <Typography variant="body2" noWrap>
+                      {t.name}
+                    </Typography>
+                    {isPassed && (
+                      <Chip 
+                        label="Passed" 
+                        size="small" 
+                        color="success" 
+                        variant="filled"
+                        sx={{ fontSize: "0.7rem", height: 20 }}
+                      />
+                    )}
+                    {!canAccessThisTask && !isPassed && (
+                      <Chip 
+                        label="Locked" 
+                        size="small" 
+                        color="default" 
+                        variant="outlined"
+                        sx={{ fontSize: "0.7rem", height: 20 }}
+                      />
+                    )}
                   </Box>
+                }
+                secondary={
+                  t.difficulty_level && (
+                    <Box sx={{ mt: 0.5, display: "flex", alignItems: "center" }}>
+                      <Tooltip title={`Difficulty: ${t.difficulty_level}`}>
+                        <Box component="span" sx={{ display: "flex" }}>
+                          {getDifficultyIcon(t.difficulty_level)}
+                        </Box>
+                      </Tooltip>
+                    </Box>
+                  )
                 }
               />
               {isSelected && <ArrowDownIcon />}
@@ -312,6 +382,90 @@ export default function TaskDetail() {
               4. Return here to access task details
             </Typography>
           </Alert>
+        </Paper>
+      </Container>
+    );
+  }
+
+  // Check if user can access this task (must complete previous tasks first)
+  if (project && project.is_registered && !canAccessCurrentTask) {
+    const sortedTasks = [...projectTasks].sort((a, b) => {
+      if (a.order !== undefined && b.order !== undefined) {
+        return a.order - b.order;
+      }
+      return a.id - b.id;
+    });
+    const currentTaskIndex = sortedTasks.findIndex(t => t.id === task.id);
+    const previousTask = currentTaskIndex > 0 ? sortedTasks[currentTaskIndex - 1] : null;
+    
+    return (
+      <Container maxWidth="md" sx={{ py: 4 }}>
+        {/* Breadcrumb navigation */}
+        <Box sx={{ mb: 3 }}>
+          <Button
+            variant="text"
+            onClick={() => navigate(`/projects/${projectId}`)}
+            sx={{ mb: 1 }}
+          >
+            ← Back to Project
+          </Button>
+        </Box>
+        
+        <Paper elevation={2} sx={{ p: 4, textAlign: "center", borderRadius: 2 }}>
+          <Box sx={{ mb: 3 }}>
+            <LockIcon sx={{ fontSize: 64, color: "warning.main", mb: 2 }} />
+            <Typography variant="h4" component="h1" gutterBottom color="text.primary">
+              Task Locked
+            </Typography>
+            <Typography variant="body1" color="text.secondary" sx={{ mb: 3, lineHeight: 1.6 }}>
+              You need to complete and pass the previous task before accessing this one.
+              This ensures you have the necessary knowledge and skills to tackle "{task.name}".
+            </Typography>
+          </Box>
+          
+          {previousTask && (
+            <Box sx={{ mb: 3 }}>
+              <Alert severity="info" sx={{ textAlign: "left" }}>
+                <Typography variant="body2">
+                  <strong>Complete this task first:</strong>
+                  <br />
+                  📋 {previousTask.name}
+                  <br />
+                  <br />
+                  <strong>Requirements to unlock:</strong>
+                  <br />
+                  • Submit your solution for the previous task
+                  <br />
+                  • Achieve a passing score
+                  <br />
+                  • Wait for task completion confirmation
+                </Typography>
+              </Alert>
+            </Box>
+          )}
+          
+          <Box sx={{ display: "flex", gap: 2, justifyContent: "center", flexWrap: "wrap" }}>
+            {previousTask && (
+              <Button
+                variant="contained"
+                color="primary"
+                size="large"
+                onClick={() => navigate(`/projects/${projectId}/tasks/${previousTask.id}`)}
+                sx={{ minWidth: 200 }}
+              >
+                Go to Previous Task
+              </Button>
+            )}
+            <Button
+              variant="outlined"
+              color="secondary"
+              size="large"
+              onClick={() => navigate(`/projects/${projectId}`)}
+              sx={{ minWidth: 150 }}
+            >
+              Back to Project
+            </Button>
+          </Box>
         </Paper>
       </Container>
     );

@@ -10,10 +10,12 @@ export interface Task {
   id: number;
   name: string;
   slug: string;
-  description: string;
+  description?: string;
+  order?: number;
+  is_passed: boolean;
   duration_in_days: number;
-  tests: string[];
-  difficulty_level: number | string;
+  tests?: string[];
+  difficulty_level: number | string | null;
   created_at: string;
   updated_at?: string;
   endpoints?: TaskEndpoint[];
