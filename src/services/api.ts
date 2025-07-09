@@ -119,9 +119,13 @@ export const fetchProjectSubmissions = (
   projectId: string | number,
   taskId?: string | number
 ) => {
-  let url = `/projects/${projectId}/submissions/`;
+  let url;
   if (taskId) {
-    url += `?task_id=${taskId}`;
+    // For task-specific submissions: /projects/1/tasks/1/submissions
+    url = `/projects/${projectId}/tasks/${taskId}/submissions/`;
+  } else {
+    // For project-level submissions: /projects/1/submissions
+    url = `/projects/${projectId}/submissions/`;
   }
   return api.get(url);
 };

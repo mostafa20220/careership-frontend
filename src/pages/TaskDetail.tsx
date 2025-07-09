@@ -62,7 +62,7 @@ export default function TaskDetail() {
     projectId: string;
     taskId: string;
   }>();
-  
+
   // Authentication
   const { isAuthenticated, user } = useAuthStore();
 
@@ -96,14 +96,16 @@ export default function TaskDetail() {
       }
       return a.id - b.id;
     });
-    
-    const currentTaskIndex = sortedTasks.findIndex(t => t.id === taskToCheck.id);
-    
+
+    const currentTaskIndex = sortedTasks.findIndex(
+      (t) => t.id === taskToCheck.id
+    );
+
     // First task is always accessible
     if (currentTaskIndex === 0) {
       return true;
     }
-    
+
     // Check if all previous tasks have been passed
     for (let i = 0; i < currentTaskIndex; i++) {
       const previousTask = sortedTasks[i];
@@ -111,12 +113,15 @@ export default function TaskDetail() {
         return false;
       }
     }
-    
+
     return true;
   };
 
   // Check if current task can be accessed
-  const canAccessCurrentTask = task && projectTasks.length > 0 ? checkTaskAccess(task, projectTasks) : true;
+  const canAccessCurrentTask =
+    task && projectTasks.length > 0
+      ? checkTaskAccess(task, projectTasks)
+      : true;
 
   useEffect(() => {
     // Check authentication first
@@ -129,7 +134,7 @@ export default function TaskDetail() {
       if (!projectId || !taskId) return;
       setLoading(true);
       setCheckingRegistration(true);
-      
+
       try {
         // Fetch project information to check registration status
         const projectResponse = await api.get(`/projects/${projectId}/`);
@@ -152,14 +157,13 @@ export default function TaskDetail() {
         ]);
 
         setTeams(teamsRes.data);
-        
+
         const registeredTeams = registrationsRes.data.map((reg: any) => {
           const match = reg.team.match(/\(([0-9a-fA-F-]+)\)$/);
           return match ? match[1] : reg.team;
         });
-        
+
         setRegisteredTeamUuids(registeredTeams);
-        
       } catch (err) {
         setError("Failed to load task data");
       } finally {
@@ -221,20 +225,26 @@ export default function TaskDetail() {
           const isSelected = t.id === Number(taskId);
           const canAccessThisTask = checkTaskAccess(t, projectTasks);
           const isPassed = t.is_passed;
-          
+
           return (
             <ListItem
               key={t.id}
               component={canAccessThisTask ? Link : "div"}
-              to={canAccessThisTask ? `/projects/${projectId}/tasks/${t.id}` : undefined}
+              to={
+                canAccessThisTask
+                  ? `/projects/${projectId}/tasks/${t.id}`
+                  : undefined
+              }
               sx={{
                 textDecoration: "none",
                 bgcolor: isSelected ? "primary.main" : "transparent",
                 opacity: canAccessThisTask ? 1 : 0.6,
                 cursor: canAccessThisTask ? "pointer" : "default",
                 "&:hover": {
-                  bgcolor: canAccessThisTask 
-                    ? (isSelected ? "primary.dark" : "action.hover")
+                  bgcolor: canAccessThisTask
+                    ? isSelected
+                      ? "primary.dark"
+                      : "action.hover"
                     : "transparent",
                 },
                 "& .MuiListItemIcon-root, & .MuiListItemText-root": {
@@ -258,19 +268,19 @@ export default function TaskDetail() {
                       {t.name}
                     </Typography>
                     {isPassed && (
-                      <Chip 
-                        label="Passed" 
-                        size="small" 
-                        color="success" 
+                      <Chip
+                        label="Passed"
+                        size="small"
+                        color="success"
                         variant="filled"
                         sx={{ fontSize: "0.7rem", height: 20 }}
                       />
                     )}
                     {!canAccessThisTask && !isPassed && (
-                      <Chip 
-                        label="Locked" 
-                        size="small" 
-                        color="default" 
+                      <Chip
+                        label="Locked"
+                        size="small"
+                        color="default"
                         variant="outlined"
                         sx={{ fontSize: "0.7rem", height: 20 }}
                       />
@@ -279,7 +289,9 @@ export default function TaskDetail() {
                 }
                 secondary={
                   t.difficulty_level && (
-                    <Box sx={{ mt: 0.5, display: "flex", alignItems: "center" }}>
+                    <Box
+                      sx={{ mt: 0.5, display: "flex", alignItems: "center" }}
+                    >
                       <Tooltip title={`Difficulty: ${t.difficulty_level}`}>
                         <Box component="span" sx={{ display: "flex" }}>
                           {getDifficultyIcon(t.difficulty_level)}
@@ -334,20 +346,40 @@ export default function TaskDetail() {
             ← Back to Projects
           </Button>
         </Box>
-        
-        <Paper elevation={2} sx={{ p: 4, textAlign: "center", borderRadius: 2 }}>
+
+        <Paper
+          elevation={2}
+          sx={{ p: 4, textAlign: "center", borderRadius: 2 }}
+        >
           <Box sx={{ mb: 3 }}>
             <LockIcon sx={{ fontSize: 64, color: "warning.main", mb: 2 }} />
-            <Typography variant="h4" component="h1" gutterBottom color="text.primary">
+            <Typography
+              variant="h4"
+              component="h1"
+              gutterBottom
+              color="text.primary"
+            >
               Registration Required
             </Typography>
-            <Typography variant="body1" color="text.secondary" sx={{ mb: 3, lineHeight: 1.6 }}>
-              You need to register a team for this project before accessing task details. 
-              Registration ensures you're part of the project and can submit your work.
+            <Typography
+              variant="body1"
+              color="text.secondary"
+              sx={{ mb: 3, lineHeight: 1.6 }}
+            >
+              You need to register a team for this project before accessing task
+              details. Registration ensures you're part of the project and can
+              submit your work.
             </Typography>
           </Box>
-          
-          <Box sx={{ display: "flex", gap: 2, justifyContent: "center", flexWrap: "wrap" }}>
+
+          <Box
+            sx={{
+              display: "flex",
+              gap: 2,
+              justifyContent: "center",
+              flexWrap: "wrap",
+            }}
+          >
             <Button
               variant="contained"
               color="primary"
@@ -368,7 +400,7 @@ export default function TaskDetail() {
               Browse Projects
             </Button>
           </Box>
-          
+
           <Alert severity="info" sx={{ mt: 3, textAlign: "left" }}>
             <Typography variant="body2">
               <strong>How to register:</strong>
@@ -395,9 +427,10 @@ export default function TaskDetail() {
       }
       return a.id - b.id;
     });
-    const currentTaskIndex = sortedTasks.findIndex(t => t.id === task.id);
-    const previousTask = currentTaskIndex > 0 ? sortedTasks[currentTaskIndex - 1] : null;
-    
+    const currentTaskIndex = sortedTasks.findIndex((t) => t.id === task.id);
+    const previousTask =
+      currentTaskIndex > 0 ? sortedTasks[currentTaskIndex - 1] : null;
+
     return (
       <Container maxWidth="md" sx={{ py: 4 }}>
         {/* Breadcrumb navigation */}
@@ -410,19 +443,32 @@ export default function TaskDetail() {
             ← Back to Project
           </Button>
         </Box>
-        
-        <Paper elevation={2} sx={{ p: 4, textAlign: "center", borderRadius: 2 }}>
+
+        <Paper
+          elevation={2}
+          sx={{ p: 4, textAlign: "center", borderRadius: 2 }}
+        >
           <Box sx={{ mb: 3 }}>
             <LockIcon sx={{ fontSize: 64, color: "warning.main", mb: 2 }} />
-            <Typography variant="h4" component="h1" gutterBottom color="text.primary">
+            <Typography
+              variant="h4"
+              component="h1"
+              gutterBottom
+              color="text.primary"
+            >
               Task Locked
             </Typography>
-            <Typography variant="body1" color="text.secondary" sx={{ mb: 3, lineHeight: 1.6 }}>
-              You need to complete and pass the previous task before accessing this one.
-              This ensures you have the necessary knowledge and skills to tackle "{task.name}".
+            <Typography
+              variant="body1"
+              color="text.secondary"
+              sx={{ mb: 3, lineHeight: 1.6 }}
+            >
+              You need to complete and pass the previous task before accessing
+              this one. This ensures you have the necessary knowledge and skills
+              to tackle "{task.name}".
             </Typography>
           </Box>
-          
+
           {previousTask && (
             <Box sx={{ mb: 3 }}>
               <Alert severity="info" sx={{ textAlign: "left" }}>
@@ -437,20 +483,28 @@ export default function TaskDetail() {
                   • Submit your solution for the previous task
                   <br />
                   • Achieve a passing score
-                  <br />
-                  • Wait for task completion confirmation
+                  <br />• Wait for task completion confirmation
                 </Typography>
               </Alert>
             </Box>
           )}
-          
-          <Box sx={{ display: "flex", gap: 2, justifyContent: "center", flexWrap: "wrap" }}>
+
+          <Box
+            sx={{
+              display: "flex",
+              gap: 2,
+              justifyContent: "center",
+              flexWrap: "wrap",
+            }}
+          >
             {previousTask && (
               <Button
                 variant="contained"
                 color="primary"
                 size="large"
-                onClick={() => navigate(`/projects/${projectId}/tasks/${previousTask.id}`)}
+                onClick={() =>
+                  navigate(`/projects/${projectId}/tasks/${previousTask.id}`)
+                }
                 sx={{ minWidth: 200 }}
               >
                 Go to Previous Task
@@ -860,8 +914,37 @@ export default function TaskDetail() {
             )}
           </Box>
 
-          {/* Submit Button */}
-          <Box sx={{ mt: 4, display: "flex", justifyContent: "flex-end" }}>
+          {/* Action Buttons */}
+          <Box
+            sx={{
+              mt: 4,
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              flexWrap: "wrap",
+              gap: 2,
+            }}
+          >
+            <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+              <Button
+                variant="outlined"
+                color="secondary"
+                size="large"
+                onClick={() => navigate(`/projects/${projectId}`)}
+              >
+                ← Back to Project
+              </Button>
+              <Button
+                variant="outlined"
+                color="info"
+                size="large"
+                onClick={() =>
+                  navigate(`/projects/${projectId}/tasks/${taskId}/submissions`)
+                }
+              >
+                View Submissions
+              </Button>
+            </Box>
             <Button
               variant="contained"
               color="primary"

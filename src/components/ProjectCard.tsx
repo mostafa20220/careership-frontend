@@ -44,7 +44,14 @@ function ProjectCard({ project }: { project: Project }) {
       >
         <CardHeader
           avatar={
-            <Avatar sx={{ bgcolor: theme.palette.mode === 'dark' ? theme.palette.secondary.main : 'primary.main' }}>
+            <Avatar
+              sx={{
+                bgcolor:
+                  theme.palette.mode === "dark"
+                    ? theme.palette.secondary.main
+                    : "primary.main",
+              }}
+            >
               {project.name.charAt(0).toUpperCase()}
             </Avatar>
           }
@@ -64,13 +71,13 @@ function ProjectCard({ project }: { project: Project }) {
               variant="h6"
               component="h2"
               sx={{
-                wordBreak: 'break-word',
-                whiteSpace: 'normal',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                display: '-webkit-box',
+                wordBreak: "break-word",
+                whiteSpace: "normal",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                display: "-webkit-box",
                 WebkitLineClamp: 2,
-                WebkitBoxOrient: 'vertical',
+                WebkitBoxOrient: "vertical",
                 fontWeight: 600,
               }}
             >
@@ -101,7 +108,14 @@ function ProjectCard({ project }: { project: Project }) {
 
           <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
             <TrendingUpIcon
-              sx={{ fontSize: 16, mr: 0.5, color: theme.palette.mode === 'dark' ? theme.palette.warning.light : 'text.secondary' }}
+              sx={{
+                fontSize: 16,
+                mr: 0.5,
+                color:
+                  theme.palette.mode === "dark"
+                    ? theme.palette.warning.light
+                    : "text.secondary",
+              }}
             />
             <Typography variant="body2" color="text.secondary">
               Difficulty:
@@ -120,7 +134,14 @@ function ProjectCard({ project }: { project: Project }) {
 
           <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
             <GroupIcon
-              sx={{ fontSize: 16, mr: 0.5, color: theme.palette.mode === 'dark' ? theme.palette.secondary.light : 'text.secondary' }}
+              sx={{
+                fontSize: 16,
+                mr: 0.5,
+                color:
+                  theme.palette.mode === "dark"
+                    ? theme.palette.secondary.light
+                    : "text.secondary",
+              }}
             />
             <Typography variant="body2" color="text.secondary">
               Team Size: {project.max_team_size}
@@ -129,7 +150,14 @@ function ProjectCard({ project }: { project: Project }) {
 
           <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
             <CategoryIcon
-              sx={{ fontSize: 16, mr: 0.5, color: theme.palette.mode === 'dark' ? theme.palette.info.light : 'text.secondary' }}
+              sx={{
+                fontSize: 16,
+                mr: 0.5,
+                color:
+                  theme.palette.mode === "dark"
+                    ? theme.palette.info.light
+                    : "text.secondary",
+              }}
             />
             <Chip
               label={project.category}
@@ -144,28 +172,44 @@ function ProjectCard({ project }: { project: Project }) {
           </Box>
 
           {/* Task Progress Indicator (only show if user is registered and has tasks) */}
-          {project.is_registered && project.tasks && project.tasks.length > 0 && (
-            <Box sx={{ display: "flex", alignItems: "center" }}>
-              <Typography variant="body2" color="text.secondary" sx={{ fontSize: 14 }}>
-                Progress: {project.tasks.filter(task => task.is_passed).length}/{project.tasks.length} tasks
-              </Typography>
-              <Box sx={{ 
-                ml: 1, 
-                width: 60, 
-                height: 4, 
-                borderRadius: 2, 
-                bgcolor: 'grey.300',
-                overflow: 'hidden'
-              }}>
-                <Box sx={{ 
-                  width: `${(project.tasks.filter(task => task.is_passed).length / project.tasks.length) * 100}%`,
-                  height: '100%',
-                  bgcolor: 'success.main',
-                  transition: 'width 0.3s ease'
-                }} />
+          {project.is_registered &&
+            project.tasks &&
+            project.tasks.length > 0 && (
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ fontSize: 14 }}
+                >
+                  Progress:{" "}
+                  {project.tasks.filter((task) => task.is_passed).length}/
+                  {project.tasks.length} tasks
+                </Typography>
+                <Box
+                  sx={{
+                    ml: 1,
+                    width: 60,
+                    height: 4,
+                    borderRadius: 2,
+                    bgcolor: "grey.300",
+                    overflow: "hidden",
+                  }}
+                >
+                  <Box
+                    sx={{
+                      width: `${
+                        (project.tasks.filter((task) => task.is_passed).length /
+                          project.tasks.length) *
+                        100
+                      }%`,
+                      height: "100%",
+                      bgcolor: "success.main",
+                      transition: "width 0.3s ease",
+                    }}
+                  />
+                </Box>
               </Box>
-            </Box>
-          )}
+            )}
         </CardContent>
 
         <CardActions sx={{ p: 2, pt: 0 }}>
