@@ -11,12 +11,13 @@ import {
   TextField,
   CircularProgress,
 } from "@mui/material";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   fetchProjectRegistrations,
   registerTeamToProject,
 } from "../../services/teams";
 import type { Team } from "../../types/team";
+import type { ProjectRegistration } from "../../types/project";
 import { fetchTeams } from "../../services/teams";
 
 interface RegisterProjectDialogProps {
@@ -26,12 +27,12 @@ interface RegisterProjectDialogProps {
   onRegisterSuccess?: () => void;
 }
 
-function RegisterProjectDialog({
+const RegisterProjectDialog = ({
   open,
   onClose,
   projectId,
   onRegisterSuccess,
-}: RegisterProjectDialogProps) {
+}: RegisterProjectDialogProps) => {
   // const theme = useTheme();
   const [teams, setTeams] = useState<Team[]>([]);
   const [registering, setRegistering] = useState(false);
@@ -43,23 +44,32 @@ function RegisterProjectDialog({
 
   useEffect(() => {
     if (!open) return;
-    fetchTeams().then((res: any) => {
-      setTeams(res.data);
-      console.log(res.data);
-    });
-    if (projectId) {
-      fetchProjectRegistrations(Number(projectId)).then((res) => {
-        console.log(res.data);
+
+    const loadTeamsAndRegistrations = async () => {
+      try {
+        const teamsRes = await fetchTeams();
+        setTeams(teamsRes.data);
+
+        const registrationsRes = await fetchProjectRegistrations();
+        const projectRegistrations = registrationsRes.data.filter(
+          (reg: ProjectRegistration) => reg.project.id === Number(projectId)
+        );
+
         setRegisteredTeamUuids(
-          res.data.map((reg: any) => {
-            // Extract UUID from "Team Name (uuid)"
+          projectRegistrations.map((reg: ProjectRegistration) => {
             const match = reg.team.match(/\(([0-9a-fA-F-]+)\)$/);
-            const sameProject = reg.project.id === Number(projectId);
-            return match && sameProject ? match[1] : reg.team;
+            return match ? match[1] : reg.team;
           })
         );
-      });
-    }
+      } catch (error) {
+        console.error("Error loading teams or registrations:", error);
+        setRegisterError("Failed to load teams or registrations");
+      }
+    };
+
+    loadTeamsAndRegistrations();
+
+    // Reset form
     setRegisterTeam("");
     setRegisterDeploymentUrl("");
     setRegisterError(null);
@@ -141,6 +151,6 @@ function RegisterProjectDialog({
       </DialogActions>
     </Dialog>
   );
-}
+};
 
 export default RegisterProjectDialog;

@@ -53,3 +53,14 @@ export interface Difficulty {
   id: number;
   name: string;
 }
+
+export interface ProjectRegistration {
+  id: number;
+  project: {
+    id: number;
+    name: string;
+  };
+  team: string;
+  deployment_url: string;
+  created_at: string;
+}

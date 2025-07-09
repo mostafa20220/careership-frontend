@@ -42,12 +42,17 @@ export const disableInvitation = (teamUuid: string, invitationUuid: string) =>
 export const deleteInvitation = (teamUuid: string, invitationUuid: string) =>
   api.delete(`/teams/${teamUuid}/invitations/${invitationUuid}/`);
 
-// team registeration
+// Project registrations API
 export const registerTeamToProject = (data: {
   project: number;
   team: string;
   deployment_url?: string;
 }) => api.post("/projects/registrations/", data);
 
-export const fetchProjectRegistrations = (projectId: number) =>
-  api.get(`/projects/${projectId}/registrations/`);
+export const fetchProjectRegistrations = () =>
+  api.get("/projects/registrations/");
+
+export const cancelProjectRegistration = (
+  registrationId: number,
+  data: { project: number }
+) => api.delete(`/projects/registrations/${registrationId}/`, { data });

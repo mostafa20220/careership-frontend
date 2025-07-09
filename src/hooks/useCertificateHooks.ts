@@ -12,8 +12,16 @@ type RequestCertificateResponse = {
   certificate_id?: string;
 };
 
+export type CertificateStatus =
+  | "available" // Certificate is available to be requested
+  | "already_issued" // Certificate has already been issued for this project
+  | "requirements_not_met" // User has not completed all requirements
+  | "no_team" // User is not in a team that completed the project
+  | "error"; // General error state
+
 export type CertificateAvailabilityResponse = {
   available: boolean;
+  status: CertificateStatus;
   detail?: string;
 };
 
@@ -26,14 +34,39 @@ const checkCertificateAvailability = async (
     );
     return {
       available: response.data.available,
+      status: "available",
       detail: response.data.detail,
     };
   } catch (error: any) {
-    // Handle 400 error case where certificate is already issued
+    // Handle 400 error cases
     if (error.response?.status === 400 && error.response?.data) {
+      const errorDetail = error.response.data.detail || "";
+
+      // Determine the status based on the error message
+      let status: CertificateStatus = "error";
+
+      if (
+        errorDetail.includes("already issued") ||
+        errorDetail.includes("already has a certificate")
+      ) {
+        status = "already_issued";
+      } else if (
+        errorDetail.includes(
+          "No team you're a member of has finished this project"
+        )
+      ) {
+        status = "no_team";
+      } else if (
+        errorDetail.includes("not completed all tasks") ||
+        errorDetail.includes("requirements not met")
+      ) {
+        status = "requirements_not_met";
+      }
+
       return {
-        available: error.response.data.available || false,
-        detail: error.response.data.detail,
+        available: false,
+        status,
+        detail: errorDetail,
       };
     }
     // Re-throw other errors

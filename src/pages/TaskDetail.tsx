@@ -53,6 +53,7 @@ import {
   Star as StarIcon,
   Celebration as CelebrationIcon,
   WorkspacePremium as CertificateIcon,
+  Group as GroupIcon,
 } from "@mui/icons-material";
 import { fetchProjectRegistrations, fetchTeams } from "../services/teams";
 import { createSubmission } from "../services/api";
@@ -170,15 +171,18 @@ export default function TaskDetail() {
         // Fetch teams and registrations for submission functionality
         const [teamsRes, registrationsRes] = await Promise.all([
           fetchTeams(),
-          fetchProjectRegistrations(Number(projectId)),
+          fetchProjectRegistrations(),
         ]);
 
         setTeams(teamsRes.data);
 
-        const registeredTeams = registrationsRes.data.map((reg: any) => {
-          const match = reg.team.match(/\(([0-9a-fA-F-]+)\)$/);
-          return match ? match[1] : reg.team;
-        });
+        // Filter registrations for this project and extract team UUIDs
+        const registeredTeams = registrationsRes.data
+          .filter((reg: any) => reg.project.id === Number(projectId))
+          .map((reg: any) => {
+            const match = reg.team.match(/\(([0-9a-fA-F-]+)\)$/);
+            return match ? match[1] : reg.team;
+          });
 
         setRegisteredTeamUuids(registeredTeams);
       } catch (err) {
@@ -732,23 +736,54 @@ export default function TaskDetail() {
                     }}
                   >
                     <Typography variant="h5" component="h2" fontWeight="bold">
-                      🎉 Project Completed!
+                      {certificateData?.status === "available"
+                        ? "🎉 Project Completed!"
+                        : certificateData?.status === "already_issued"
+                        ? "🏆 Certificate Issued!"
+                        : certificateData?.status === "no_team"
+                        ? "👥 Team Required"
+                        : certificateData?.status === "requirements_not_met"
+                        ? "📝 Tasks Pending"
+                        : "🎉 Project Completed!"}
                     </Typography>
-                    <CelebrationIcon sx={{ fontSize: 28, color: "#FFD700" }} />
+                    {certificateData?.status === "available" ||
+                    !certificateData ? (
+                      <CelebrationIcon
+                        sx={{ fontSize: 28, color: "#FFD700" }}
+                      />
+                    ) : certificateData?.status === "already_issued" ? (
+                      <CertificateIcon
+                        sx={{ fontSize: 28, color: "#4CAF50" }}
+                      />
+                    ) : certificateData?.status === "no_team" ? (
+                      <GroupIcon sx={{ fontSize: 28, color: "#2196F3" }} />
+                    ) : certificateData?.status === "requirements_not_met" ? (
+                      <AssignmentIcon sx={{ fontSize: 28, color: "#FF9800" }} />
+                    ) : (
+                      <CelebrationIcon
+                        sx={{ fontSize: 28, color: "#FFD700" }}
+                      />
+                    )}
                   </Box>
                   <Typography
                     variant="body1"
                     sx={{ opacity: 0.9, lineHeight: 1.6 }}
                   >
-                    Congratulations! You've successfully completed all tasks in
-                    this project. You can now request your certificate to
-                    showcase your achievement.
+                    {certificateData?.status === "available"
+                      ? "Congratulations! You've successfully completed all tasks in this project. You can now request your certificate to showcase your achievement."
+                      : certificateData?.status === "already_issued"
+                      ? "You've already received a certificate for this project. You can view and download it from your certificates page."
+                      : certificateData?.status === "no_team"
+                      ? "You need to be part of a team that has completed this project to receive a certificate. Join or create a team to proceed."
+                      : certificateData?.status === "requirements_not_met"
+                      ? "Your team needs to complete all project tasks before you can request a certificate."
+                      : "Congratulations! You've successfully completed all tasks in this project. You can now request your certificate to showcase your achievement."}
                   </Typography>
                 </Box>
               </Box>
 
               <Box sx={{ display: "flex", gap: 2, mt: 3, flexWrap: "wrap" }}>
-                {certificateData?.available ? (
+                {certificateData?.status === "available" ? (
                   <Button
                     variant="contained"
                     size="large"
@@ -765,7 +800,7 @@ export default function TaskDetail() {
                   >
                     Request Certificate
                   </Button>
-                ) : certificateData && !certificateData.available ? (
+                ) : certificateData?.status === "already_issued" ? (
                   <Button
                     variant="contained"
                     size="large"
@@ -781,6 +816,42 @@ export default function TaskDetail() {
                     onClick={() => navigate("/certificates")}
                   >
                     View Certificates
+                  </Button>
+                ) : certificateData?.status === "no_team" ? (
+                  <Button
+                    variant="contained"
+                    size="large"
+                    startIcon={<GroupIcon />}
+                    sx={{
+                      bgcolor: "rgba(255, 255, 255, 0.2)",
+                      color: "white",
+                      backdropFilter: "blur(10px)",
+                      "&:hover": {
+                        bgcolor: "rgba(255, 255, 255, 0.3)",
+                      },
+                    }}
+                    onClick={() => navigate(`/teams`)}
+                  >
+                    Join or Create Team
+                  </Button>
+                ) : certificateData?.status === "requirements_not_met" ? (
+                  <Button
+                    variant="contained"
+                    size="large"
+                    startIcon={<AssignmentIcon />}
+                    sx={{
+                      bgcolor: "rgba(255, 255, 255, 0.2)",
+                      color: "white",
+                      backdropFilter: "blur(10px)",
+                      "&:hover": {
+                        bgcolor: "rgba(255, 255, 255, 0.3)",
+                      },
+                    }}
+                    onClick={() =>
+                      navigate(`/projects/${projectId}/submissions`)
+                    }
+                  >
+                    Complete Tasks
                   </Button>
                 ) : (
                   <Button

@@ -30,6 +30,7 @@ import {
   ChevronRight as ChevronRightIcon,
   EmojiEvents as TrophyIcon,
   WorkspacePremium as CertificateIcon,
+  Info as InfoIcon,
 } from "@mui/icons-material";
 import type { Project, Task } from "../../types/project";
 import { difficultyColors, categoryColors } from "../../constants/projects";
@@ -142,10 +143,26 @@ export default function ProjectDetail() {
       {/* Certificate Availability Notification */}
       {!certificateLoading && certificateData && (
         <Alert
-          severity={certificateData.available ? "info" : "success"}
-          icon={<SchoolIcon />}
+          severity={
+            certificateData.status === "available"
+              ? "info"
+              : certificateData.status === "already_issued"
+              ? "success"
+              : certificateData.status === "no_team" || certificateData.status === "requirements_not_met"
+              ? "warning"
+              : "error"
+          }
+          icon={
+            certificateData.status === "available" ? (
+              <SchoolIcon />
+            ) : certificateData.status === "already_issued" ? (
+              <CertificateIcon />
+            ) : (
+              <InfoIcon />
+            )
+          }
           action={
-            certificateData.available ? (
+            certificateData.status === "available" ? (
               <Button
                 color="inherit"
                 size="small"
@@ -154,7 +171,7 @@ export default function ProjectDetail() {
               >
                 Request Certificate
               </Button>
-            ) : (
+            ) : certificateData.status === "already_issued" ? (
               <Button
                 color="inherit"
                 size="small"
@@ -163,14 +180,38 @@ export default function ProjectDetail() {
               >
                 View Certificates
               </Button>
+            ) : certificateData.status === "no_team" ? (
+              <Button
+                color="inherit"
+                size="small"
+                onClick={() => setRegisterDialogOpen(true)}
+                startIcon={<GroupIcon />}
+              >
+                Register Team
+              </Button>
+            ) : (
+              <Button
+                color="inherit"
+                size="small"
+                onClick={() => navigate(`/projects/${id}/submissions`)}
+                startIcon={<AssignmentIcon />}
+              >
+                View Submissions
+              </Button>
             )
           }
           sx={{ mb: 3 }}
         >
           <Typography variant="body2">
-            {certificateData.available
+            {certificateData.status === "available"
               ? "You can obtain a certificate for completing this project! Click the button to request your certificate."
-              : "Certificate already issued for this project. View your certificates to download or share it."}
+              : certificateData.status === "already_issued"
+              ? "Certificate already issued for this project. View your certificates to download or share it."
+              : certificateData.status === "no_team"
+              ? "You need to be a member of a team that has completed this project to receive a certificate."
+              : certificateData.status === "requirements_not_met"
+              ? "Your team needs to complete all project tasks before you can request a certificate."
+              : certificateData.detail || "There was an issue checking certificate availability."}
           </Typography>
         </Alert>
       )}
