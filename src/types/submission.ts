@@ -1,6 +1,10 @@
 export interface Submission {
   id: number;
-  task: number; // task order, not task ID
+  task: {
+    id: number;
+    name: string;
+    order: number;
+  };
   user: string; // user name instead of ID
   team: string; // team name instead of ID
   status: string;
@@ -36,7 +40,11 @@ export interface SubmissionDetail {
   completed_at?: string | null;
   created_at: string;
   project: number;
-  task: number; // actual task ID for details
+  task: {
+    id: number;
+    name: string;
+    order: number;
+  };
   user: number; // user ID for details
   team: number; // team ID for details
 }

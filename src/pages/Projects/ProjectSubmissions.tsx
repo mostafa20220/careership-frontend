@@ -139,7 +139,7 @@ export default function ProjectSubmissions() {
                   Team
                 </TableCell>
                 <TableCell sx={{ fontWeight: 700, color: "text.primary" }}>
-                  Task Order
+                  Task
                 </TableCell>
                 <TableCell sx={{ fontWeight: 700, color: "text.primary" }}>
                   Success Rate
@@ -173,8 +173,7 @@ export default function ProjectSubmissions() {
                   }}
                   onClick={() => {
                     // Navigate to the submission detail page on row click
-                    const actualTaskId = sub.task + 1;
-                    navigate(`/projects/${projectId}/tasks/${actualTaskId}/submissions/${sub.id}`);
+                    navigate(`/projects/${projectId}/tasks/${sub.task.id}/submissions/${sub.id}`);
                   }}
                 >
                   <TableCell>
@@ -197,7 +196,15 @@ export default function ProjectSubmissions() {
                   </TableCell>
                   <TableCell>
                     <Chip
-                      label={`Task ${sub.task}`}
+                      label={sub.task.name}
+                      sx={{
+                        '& .MuiChip-label': {
+                          maxWidth: '200px',
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis'
+                        }
+                      }}
                       color="default"
                       size="small"
                       variant="outlined"
@@ -265,8 +272,7 @@ export default function ProjectSubmissions() {
                         onClick={() => {
                           // Note: in the API response, `task` is the order (0-based index)
                           // But in the URL, we need the task ID which is 1-based, hence we add 1
-                          const actualTaskId = sub.task + 1;
-                          navigate(`/projects/${projectId}/tasks/${actualTaskId}/submissions/${sub.id}`);
+                          navigate(`/projects/${projectId}/tasks/${sub.task.id}/submissions/${sub.id}`);
                         }}
                         color="primary"
                       >
