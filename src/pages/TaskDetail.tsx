@@ -52,11 +52,13 @@ import {
   EmojiEvents as TrophyIcon,
   Star as StarIcon,
   Celebration as CelebrationIcon,
+  WorkspacePremium as CertificateIcon,
 } from "@mui/icons-material";
 import { fetchProjectRegistrations, fetchTeams } from "../services/teams";
 import { createSubmission } from "../services/api";
 import type { Team } from "../types/team";
 import { useAuthStore } from "../store/authStore";
+import { useCertificateAvailability } from "../hooks/useCertificateHooks";
 
 const DRAWER_WIDTH = 280;
 
@@ -71,6 +73,9 @@ export default function TaskDetail() {
 
   // Authentication
   const { isAuthenticated, user } = useAuthStore();
+
+  // Certificate availability
+  const { data: certificateData } = useCertificateAvailability(Number(projectId));
 
   const [task, setTask] = useState<Task | null>(null);
   const [project, setProject] = useState<Project | null>(null);
@@ -714,22 +719,58 @@ export default function TaskDetail() {
               </Box>
               
               <Box sx={{ display: 'flex', gap: 2, mt: 3, flexWrap: 'wrap' }}>
-                <Button
-                  variant="contained"
-                  size="large"
-                  startIcon={<StarIcon />}
-                  sx={{ 
-                    bgcolor: 'rgba(255, 255, 255, 0.2)', 
-                    color: 'white',
-                    backdropFilter: 'blur(10px)',
-                    '&:hover': { 
-                      bgcolor: 'rgba(255, 255, 255, 0.3)' 
-                    }
-                  }}
-                  onClick={() => navigate(`/projects/${projectId}`)}
-                >
-                  Request Certificate
-                </Button>
+                {certificateData?.available ? (
+                  <Button
+                    variant="contained"
+                    size="large"
+                    startIcon={<StarIcon />}
+                    sx={{ 
+                      bgcolor: 'rgba(255, 255, 255, 0.2)', 
+                      color: 'white',
+                      backdropFilter: 'blur(10px)',
+                      '&:hover': { 
+                        bgcolor: 'rgba(255, 255, 255, 0.3)' 
+                      }
+                    }}
+                    onClick={() => navigate(`/projects/${projectId}`)}
+                  >
+                    Request Certificate
+                  </Button>
+                ) : certificateData && !certificateData.available ? (
+                  <Button
+                    variant="contained"
+                    size="large"
+                    startIcon={<CertificateIcon />}
+                    sx={{ 
+                      bgcolor: 'rgba(255, 255, 255, 0.2)', 
+                      color: 'white',
+                      backdropFilter: 'blur(10px)',
+                      '&:hover': { 
+                        bgcolor: 'rgba(255, 255, 255, 0.3)' 
+                      }
+                    }}
+                    onClick={() => navigate("/certificates")}
+                  >
+                    View Certificates
+                  </Button>
+                ) : (
+                  <Button
+                    variant="contained"
+                    size="large"
+                    startIcon={<StarIcon />}
+                    sx={{ 
+                      bgcolor: 'rgba(255, 255, 255, 0.2)', 
+                      color: 'white',
+                      backdropFilter: 'blur(10px)',
+                      '&:hover': { 
+                        bgcolor: 'rgba(255, 255, 255, 0.3)' 
+                      }
+                    }}
+                    onClick={() => navigate(`/projects/${projectId}`)}
+                  >
+                    Request Certificate
+                  </Button>
+                )}
                 <Button
                   variant="outlined"
                   size="large"

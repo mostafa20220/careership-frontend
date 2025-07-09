@@ -29,6 +29,7 @@ import {
   CheckCircle as CheckCircleIcon,
   ChevronRight as ChevronRightIcon,
   EmojiEvents as TrophyIcon,
+  WorkspacePremium as CertificateIcon,
 } from "@mui/icons-material";
 import type { Project, Task } from "../../types/project";
 import { difficultyColors, categoryColors } from "../../constants/projects";
@@ -141,7 +142,7 @@ export default function ProjectDetail() {
       {/* Certificate Availability Notification */}
       {!certificateLoading && certificateData && (
         <Alert
-          severity={certificateData.available ? "info" : "warning"}
+          severity={certificateData.available ? "info" : "success"}
           icon={<SchoolIcon />}
           action={
             certificateData.available ? (
@@ -153,14 +154,23 @@ export default function ProjectDetail() {
               >
                 Request Certificate
               </Button>
-            ) : null
+            ) : (
+              <Button
+                color="inherit"
+                size="small"
+                onClick={() => navigate("/certificates")}
+                startIcon={<CertificateIcon />}
+              >
+                View Certificates
+              </Button>
+            )
           }
           sx={{ mb: 3 }}
         >
           <Typography variant="body2">
             {certificateData.available 
               ? "You can obtain a certificate for completing this project! Click the button to request your certificate."
-              : certificateData.detail || "Certificate not available for this project."
+              : "Certificate already issued for this project. View your certificates to download or share it."
             }
           </Typography>
         </Alert>
