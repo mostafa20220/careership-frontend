@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import type { Task } from "../types/project";
+import type { Task, Project } from "../types/project";
 import api from "../services/api";
 import {
   Container,
@@ -44,10 +44,13 @@ import {
   TrendingUp as HardIcon,
   TrendingFlat as MediumIcon,
   TrendingDown as EasyIcon,
+  Lock as LockIcon,
+  PersonAdd as RegisterIcon,
 } from "@mui/icons-material";
 import { fetchProjectRegistrations, fetchTeams } from "../services/teams";
 import { createSubmission } from "../services/api";
 import type { Team } from "../types/team";
+import { useAuthStore } from "../store/authStore";
 
 const DRAWER_WIDTH = 280;
 
@@ -59,13 +62,18 @@ export default function TaskDetail() {
     projectId: string;
     taskId: string;
   }>();
+  
+  // Authentication
+  const { isAuthenticated, user } = useAuthStore();
 
   const [task, setTask] = useState<Task | null>(null);
+  const [project, setProject] = useState<Project | null>(null);
   const [projectTasks, setProjectTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [teams, setTeams] = useState<Team[]>([]);
   const [registeredTeamUuids, setRegisteredTeamUuids] = useState<string[]>([]);
+  const [checkingRegistration, setCheckingRegistration] = useState(true);
 
   // Submission state
   const [submitDialogOpen, setSubmitDialogOpen] = useState(false);
@@ -80,10 +88,22 @@ export default function TaskDetail() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
+    // Check authentication first
+    if (!isAuthenticated) {
+      navigate("/login");
+      return;
+    }
+
     const fetchData = async () => {
       if (!projectId || !taskId) return;
       setLoading(true);
+      setCheckingRegistration(true);
+      
       try {
+        // Fetch project information to check registration status
+        const projectResponse = await api.get(`/projects/${projectId}/`);
+        setProject(projectResponse.data);
+
         // Fetch current task
         const taskResponse = await api.get(
           `/projects/${projectId}/tasks/${taskId}/`
@@ -94,28 +114,31 @@ export default function TaskDetail() {
         const tasksResponse = await api.get(`/projects/${projectId}/tasks/`);
         setProjectTasks(tasksResponse.data);
 
-        // Fetch teams and registrations
+        // Fetch teams and registrations for submission functionality
         const [teamsRes, registrationsRes] = await Promise.all([
           fetchTeams(),
           fetchProjectRegistrations(Number(projectId)),
         ]);
 
         setTeams(teamsRes.data);
-        setRegisteredTeamUuids(
-          registrationsRes.data.map((reg: any) => {
-            const match = reg.team.match(/\(([0-9a-fA-F-]+)\)$/);
-            return match ? match[1] : reg.team;
-          })
-        );
+        
+        const registeredTeams = registrationsRes.data.map((reg: any) => {
+          const match = reg.team.match(/\(([0-9a-fA-F-]+)\)$/);
+          return match ? match[1] : reg.team;
+        });
+        
+        setRegisteredTeamUuids(registeredTeams);
+        
       } catch (err) {
         setError("Failed to load task data");
       } finally {
         setLoading(false);
+        setCheckingRegistration(false);
       }
     };
 
     fetchData();
-  }, [projectId, taskId]);
+  }, [projectId, taskId, isAuthenticated, navigate]);
 
   const handleSubmit = async () => {
     setSubmitting(true);
@@ -204,7 +227,7 @@ export default function TaskDetail() {
     </Box>
   );
 
-  if (loading) {
+  if (loading || checkingRegistration) {
     return (
       <Box
         sx={{
@@ -223,6 +246,73 @@ export default function TaskDetail() {
     return (
       <Container maxWidth="md" sx={{ py: 4 }}>
         <Alert severity="error">{error || "Task not found"}</Alert>
+      </Container>
+    );
+  }
+
+  // Check if user is registered for this project
+  if (project && !project.is_registered) {
+    return (
+      <Container maxWidth="md" sx={{ py: 4 }}>
+        {/* Breadcrumb navigation */}
+        <Box sx={{ mb: 3 }}>
+          <Button
+            variant="text"
+            onClick={() => navigate("/projects")}
+            sx={{ mb: 1 }}
+          >
+            ← Back to Projects
+          </Button>
+        </Box>
+        
+        <Paper elevation={2} sx={{ p: 4, textAlign: "center", borderRadius: 2 }}>
+          <Box sx={{ mb: 3 }}>
+            <LockIcon sx={{ fontSize: 64, color: "warning.main", mb: 2 }} />
+            <Typography variant="h4" component="h1" gutterBottom color="text.primary">
+              Registration Required
+            </Typography>
+            <Typography variant="body1" color="text.secondary" sx={{ mb: 3, lineHeight: 1.6 }}>
+              You need to register a team for this project before accessing task details. 
+              Registration ensures you're part of the project and can submit your work.
+            </Typography>
+          </Box>
+          
+          <Box sx={{ display: "flex", gap: 2, justifyContent: "center", flexWrap: "wrap" }}>
+            <Button
+              variant="contained"
+              color="primary"
+              size="large"
+              startIcon={<RegisterIcon />}
+              onClick={() => navigate(`/projects/${projectId}`)}
+              sx={{ minWidth: 200 }}
+            >
+              Register for Project
+            </Button>
+            <Button
+              variant="outlined"
+              color="secondary"
+              size="large"
+              onClick={() => navigate("/projects")}
+              sx={{ minWidth: 150 }}
+            >
+              Browse Projects
+            </Button>
+          </Box>
+          
+          <Alert severity="info" sx={{ mt: 3, textAlign: "left" }}>
+            <Typography variant="body2">
+              <strong>How to register:</strong>
+              <br />
+              1. Go to the project page
+              <br />
+              2. Create or join a team
+              <br />
+              3. Register your team for this project
+              <br />
+              4. Return here to access task details
+            </Typography>
+          </Alert>
+        </Paper>
       </Container>
     );
   }
