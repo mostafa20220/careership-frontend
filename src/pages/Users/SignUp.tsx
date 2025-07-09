@@ -63,10 +63,67 @@ export default function SignUp() {
       const { confirmPassword, ...signupData } = formData;
       await signupMutation.mutateAsync(signupData);
       navigate("/");
-    } catch (err) {
-      setErrors({
-        confirmPassword: ["Sign up failed"],
-      });
+    } catch (err: any) {
+      console.log("Full error:", err);
+      console.log("Error response:", err?.response);
+      console.log("Error data:", err?.response?.data);
+      console.log("Error message:", err?.message);
+      
+      // Check if error has the concatenated format from useAuth
+      if (err?.message && typeof err.message === "string") {
+        const validationErrors: ValidationErrors = {};
+        
+        // Parse the concatenated error message like "password: msg1, msg2\nfield: msg3"
+        const errorLines = err.message.split('\n');
+        errorLines.forEach((line: string) => {
+          const colonIndex = line.indexOf(':');
+          if (colonIndex > 0) {
+            const field = line.substring(0, colonIndex).trim();
+            const messagesStr = line.substring(colonIndex + 1).trim();
+            const messages = messagesStr.split(', ').map((msg: string) => msg.trim());
+            validationErrors[field] = messages;
+          }
+        });
+        
+        console.log("Parsed validation errors:", validationErrors);
+        
+        if (Object.keys(validationErrors).length > 0) {
+          setErrors(validationErrors);
+          return;
+        }
+      }
+      
+      // Fallback: check if it's a structured response error
+      const errorData = err?.response?.data;
+      if (errorData && typeof errorData === "object") {
+        const validationErrors: ValidationErrors = {};
+
+        // Process each field's errors
+        Object.entries(errorData).forEach(([field, messages]) => {
+          console.log(`Processing field: ${field}, messages:`, messages);
+          if (Array.isArray(messages)) {
+            validationErrors[field] = messages;
+          } else if (typeof messages === "string") {
+            validationErrors[field] = [messages];
+          }
+        });
+
+        console.log("Final validation errors:", validationErrors);
+        
+        // Set validation errors if any exist
+        if (Object.keys(validationErrors).length > 0) {
+          setErrors(validationErrors);
+        } else {
+          // Fallback to a general error message
+          setErrors({
+            general: ["An unexpected error occurred. Please try again."],
+          });
+        }
+      } else {
+        setErrors({
+          general: ["An unexpected error occurred. Please try again."],
+        });
+      }
     }
   };
 
@@ -80,7 +137,24 @@ export default function SignUp() {
   };
 
   const getFieldError = (fieldName: string) => {
-    return errors[fieldName]?.[0] || "";
+    const fieldErrors = errors[fieldName];
+    console.log(`Getting field error for ${fieldName}:`, fieldErrors);
+    return fieldErrors?.join("\n") || "";
+  };
+
+  const getAllErrors = () => {
+    console.log("Getting all errors from state:", errors);
+    const allErrors = Object.entries(errors).flatMap(([field, msgs]) => {
+      if (!msgs || msgs.length === 0) return [];
+      
+      if (field === "password" || field === "confirmPassword" || field === "general") {
+        return msgs; // Show these errors as plain messages
+      } else {
+        return msgs.map((msg) => `${field}: ${msg}`);
+      }
+    });
+    console.log("All errors to display:", allErrors);
+    return allErrors;
   };
 
   return (
@@ -106,6 +180,16 @@ export default function SignUp() {
           <Typography component="h1" variant="h5">
             Sign up
           </Typography>
+          {/* Show all validation errors in an Alert above the form */}
+          {getAllErrors().length > 0 && (
+            <Alert severity="error" sx={{ width: "100%", mt: 2, mb: 2 }}>
+              <ul style={{ margin: 0, paddingLeft: 20 }}>
+                {getAllErrors().map((err, idx) => (
+                  <li key={idx}>{err}</li>
+                ))}
+              </ul>
+            </Alert>
+          )}
           {(signupMutation.error || oauthError) &&
             !Object.keys(errors).length && (
               <Alert severity="error" sx={{ width: "100%", mt: 2 }}>
@@ -171,7 +255,7 @@ export default function SignUp() {
               autoComplete="new-password"
               value={formData.password}
               onChange={handleChange}
-              error={!!getFieldError("password")}
+              error={!!errors["password"]}
               helperText={getFieldError("password")}
               disabled={signupMutation.isPending}
             />
@@ -185,7 +269,7 @@ export default function SignUp() {
               id="confirmPassword"
               value={formData.confirmPassword}
               onChange={handleChange}
-              error={!!getFieldError("confirmPassword")}
+              error={!!errors["confirmPassword"]}
               helperText={getFieldError("confirmPassword")}
               disabled={signupMutation.isPending}
             />
