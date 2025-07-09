@@ -51,9 +51,8 @@ const getCertificate = async (certificate_no: string): Promise<Certificate> => {
 
 const downloadCertificate = async (certificate_no: string): Promise<Blob> => {
   console.log("downloading certificate", certificate_no);
-  const { data } = await api.post(
+  const { data } = await api.get(
     `/certificates/${certificate_no}/download/`,
-    {},
     {
       responseType: "blob",
     }

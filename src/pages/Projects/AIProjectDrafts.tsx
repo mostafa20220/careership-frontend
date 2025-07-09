@@ -197,7 +197,7 @@ const GeneratingLoadingIndicator: React.FC = () => {
               },
             }}
           />
-          
+
           {/* Orbiting particles */}
           {[0, 1, 2].map((i) => (
             <Box
@@ -214,10 +214,14 @@ const GeneratingLoadingIndicator: React.FC = () => {
                 transformOrigin: "0 0",
                 [`@keyframes orbit${i}`]: {
                   "0%": {
-                    transform: `translate(-50%, -50%) rotate(${i * 120}deg) translateX(50px) rotate(-${i * 120}deg)`,
+                    transform: `translate(-50%, -50%) rotate(${
+                      i * 120
+                    }deg) translateX(50px) rotate(-${i * 120}deg)`,
                   },
                   "100%": {
-                    transform: `translate(-50%, -50%) rotate(${i * 120 + 360}deg) translateX(50px) rotate(-${i * 120 + 360}deg)`,
+                    transform: `translate(-50%, -50%) rotate(${
+                      i * 120 + 360
+                    }deg) translateX(50px) rotate(-${i * 120 + 360}deg)`,
                   },
                 },
               }}
@@ -225,9 +229,9 @@ const GeneratingLoadingIndicator: React.FC = () => {
           ))}
         </Box>
 
-        <Typography 
-          variant="h5" 
-          color="primary" 
+        <Typography
+          variant="h5"
+          color="primary"
           gutterBottom
           fontWeight="bold"
           sx={{
@@ -239,19 +243,19 @@ const GeneratingLoadingIndicator: React.FC = () => {
         >
           AI is generating your project...
         </Typography>
-        
-        <Typography 
-          variant="body1" 
+
+        <Typography
+          variant="body1"
           color="text.secondary"
-          sx={{ 
+          sx={{
             maxWidth: 400,
             lineHeight: 1.6,
             opacity: 0.8,
           }}
         >
-          Our advanced AI is crafting a personalized project structure, 
-          tasks, and documentation tailored specifically for you. 
-          This magical process will be worth the wait!
+          Our advanced AI is crafting a personalized project structure, tasks,
+          and documentation tailored specifically for you. This magical process
+          will be worth the wait!
         </Typography>
 
         {/* Progress indicator */}
@@ -913,7 +917,7 @@ const AIProjectDrafts: React.FC = () => {
           }}
         >
           {/* Header */}
-          <Box sx={{ p: 2, borderBottom: 1, borderColor: "divider" }}>
+          <Box sx={{ p: 2, borderBottom: 1, borderColor: "divider", }}>
             <Box
               sx={{
                 display: "flex",
