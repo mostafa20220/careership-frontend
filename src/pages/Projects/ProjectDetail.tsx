@@ -141,23 +141,27 @@ export default function ProjectDetail() {
       {/* Certificate Availability Notification */}
       {!certificateLoading && certificateData && (
         <Alert
-          severity="info"
+          severity={certificateData.available ? "info" : "warning"}
           icon={<SchoolIcon />}
           action={
-            <Button
-              color="inherit"
-              size="small"
-              onClick={handleRequestCertificate}
-              startIcon={<CheckCircleIcon />}
-            >
-              Request Certificate
-            </Button>
+            certificateData.available ? (
+              <Button
+                color="inherit"
+                size="small"
+                onClick={handleRequestCertificate}
+                startIcon={<CheckCircleIcon />}
+              >
+                Request Certificate
+              </Button>
+            ) : null
           }
           sx={{ mb: 3 }}
         >
           <Typography variant="body2">
-            You can obtain a certificate for completing this project! Click the
-            button to request your certificate.
+            {certificateData.available 
+              ? "You can obtain a certificate for completing this project! Click the button to request your certificate."
+              : certificateData.detail || "Certificate not available for this project."
+            }
           </Typography>
         </Alert>
       )}

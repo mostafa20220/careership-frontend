@@ -12,13 +12,33 @@ type RequestCertificateResponse = {
   certificate_id?: string;
 };
 
+export type CertificateAvailabilityResponse = {
+  available: boolean;
+  detail?: string;
+};
+
 const checkCertificateAvailability = async (
   projectId: number
-): Promise<boolean> => {
-  const response = await api.get(
-    `/projects/${projectId}/certificates/available/`
-  );
-  return response.data.available;
+): Promise<CertificateAvailabilityResponse> => {
+  try {
+    const response = await api.get(
+      `/projects/${projectId}/certificates/available/`
+    );
+    return {
+      available: response.data.available,
+      detail: response.data.detail,
+    };
+  } catch (error: any) {
+    // Handle 400 error case where certificate is already issued
+    if (error.response?.status === 400 && error.response?.data) {
+      return {
+        available: error.response.data.available || false,
+        detail: error.response.data.detail,
+      };
+    }
+    // Re-throw other errors
+    throw error;
+  }
 };
 
 const requestCertificate = async (
@@ -106,7 +126,7 @@ export const useDownloadCertificate = () => {
 
 export const useCertificateAvailability = (
   projectId: number
-): UseQueryResult<boolean, Error> => {
+): UseQueryResult<CertificateAvailabilityResponse, Error> => {
   return useQuery({
     queryKey: ["certificate", "available", projectId],
     queryFn: () => checkCertificateAvailability(projectId),
