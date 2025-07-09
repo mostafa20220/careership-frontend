@@ -28,6 +28,7 @@ import Teams from "./pages/Teams/Teams";
 import TeamDetail from "./pages/Teams/TeamDetail";
 import AcceptInvitation from "./pages/Teams/AcceptInvitation";
 import ProjectSubmissions from "./pages/Projects/ProjectSubmissions";
+import SubmissionDetail from "./pages/Projects/SubmissionDetail";
 
 import AIProjectDrafts from "./pages/Projects/AIProjectDrafts";
 import Certificates from "./pages/Certificates/Certificates";
@@ -103,6 +104,10 @@ const protectedRoutes = [
   {
     path: "/projects/:projectId/tasks/:taskId/submissions",
     element: <ProjectSubmissions />,
+  },
+  {
+    path: "/projects/:projectId/tasks/:taskId/submissions/:submissionId",
+    element: <SubmissionDetail />,
   },
   
   {

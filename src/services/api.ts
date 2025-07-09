@@ -138,6 +138,16 @@ export const createSubmission = (
   return api.post(`/projects/${projectId}/tasks/${taskId}/submissions/`, data);
 };
 
+export const fetchSubmissionDetail = (
+  projectId: string | number,
+  taskId: string | number,
+  submissionId: string | number
+) => {
+  return api.get(
+    `/projects/${projectId}/tasks/${taskId}/submissions/${submissionId}`
+  );
+};
+
 // Categories and Difficulties API
 export const fetchCategories = () => api.get("/categories/");
 export const fetchDifficulties = () => api.get("/difficulties/");
