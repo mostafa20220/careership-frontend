@@ -39,4 +39,4 @@ export interface SubmissionDetail {
   task: number; // actual task ID for details
   user: number; // user ID for details
   team: number; // team ID for details
-} 
+}

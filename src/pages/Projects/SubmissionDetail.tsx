@@ -95,7 +95,15 @@ export default function SubmissionDetailPage() {
         <Button
           variant="text"
           startIcon={<ArrowBackIcon />}
-          onClick={() => navigate(`/projects/${projectId}/submissions`)}
+          onClick={() => {
+            if (taskId) {
+              // Go back to task-specific submissions
+              navigate(`/projects/${projectId}/tasks/${taskId}/submissions`);
+            } else {
+              // Fallback to project submissions
+              navigate(`/projects/${projectId}/submissions`);
+            }
+          }}
           sx={{ mb: 2 }}
         >
           Back to Submissions

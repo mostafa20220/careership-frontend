@@ -75,7 +75,9 @@ export default function TaskDetail() {
   const { isAuthenticated, user } = useAuthStore();
 
   // Certificate availability
-  const { data: certificateData } = useCertificateAvailability(Number(projectId));
+  const { data: certificateData } = useCertificateAvailability(
+    Number(projectId)
+  );
 
   const [task, setTask] = useState<Task | null>(null);
   const [project, setProject] = useState<Project | null>(null);
@@ -135,9 +137,8 @@ export default function TaskDetail() {
       : true;
 
   // Check if all project tasks are completed
-  const isProjectCompleted = 
-    projectTasks.length > 0 && 
-    projectTasks.every(task => task.is_passed);
+  const isProjectCompleted =
+    projectTasks.length > 0 && projectTasks.every((task) => task.is_passed);
 
   useEffect(() => {
     // Check authentication first
@@ -232,34 +233,49 @@ export default function TaskDetail() {
   const tasksList = (
     <Box sx={{ width: "100%", bgcolor: "background.paper" }}>
       <Box sx={{ p: 2, borderBottom: 1, borderColor: "divider" }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
           <Typography variant="h6" noWrap color="text.primary">
             Project Tasks
           </Typography>
           {isProjectCompleted && (
             <Tooltip title="All tasks completed!">
-              <TrophyIcon sx={{ color: '#FFD700', fontSize: 24 }} />
+              <TrophyIcon sx={{ color: "#FFD700", fontSize: 24 }} />
             </Tooltip>
           )}
         </Box>
         {projectTasks.length > 0 && (
-          <Box sx={{ mt: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Box sx={{ mt: 1, display: "flex", alignItems: "center", gap: 1 }}>
             <Typography variant="caption" color="text.secondary">
-              {projectTasks.filter(t => t.is_passed).length}/{projectTasks.length} completed
+              {projectTasks.filter((t) => t.is_passed).length}/
+              {projectTasks.length} completed
             </Typography>
-            <Box sx={{ 
-              flexGrow: 1, 
-              height: 4, 
-              borderRadius: 2, 
-              bgcolor: 'grey.300',
-              overflow: 'hidden'
-            }}>
-              <Box sx={{ 
-                width: `${(projectTasks.filter(t => t.is_passed).length / projectTasks.length) * 100}%`,
-                height: '100%',
-                bgcolor: isProjectCompleted ? '#FFD700' : 'primary.main',
-                transition: 'width 0.3s ease, background-color 0.3s ease'
-              }} />
+            <Box
+              sx={{
+                flexGrow: 1,
+                height: 4,
+                borderRadius: 2,
+                bgcolor: "grey.300",
+                overflow: "hidden",
+              }}
+            >
+              <Box
+                sx={{
+                  width: `${
+                    (projectTasks.filter((t) => t.is_passed).length /
+                      projectTasks.length) *
+                    100
+                  }%`,
+                  height: "100%",
+                  bgcolor: isProjectCompleted ? "#FFD700" : "primary.main",
+                  transition: "width 0.3s ease, background-color 0.3s ease",
+                }}
+              />
             </Box>
           </Box>
         )}
@@ -662,75 +678,88 @@ export default function TaskDetail() {
       >
         {/* Project Completion Celebration */}
         {isProjectCompleted && (
-          <Card 
+          <Card
             elevation={3}
-            sx={{ 
-              mb: 4, 
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              color: 'white',
-              position: 'relative',
-              overflow: 'hidden',
-              '&::before': {
+            sx={{
+              mb: 4,
+              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+              color: "white",
+              position: "relative",
+              overflow: "hidden",
+              "&::before": {
                 content: '""',
-                position: 'absolute',
+                position: "absolute",
                 top: -50,
                 right: -50,
                 width: 100,
                 height: 100,
-                background: 'rgba(255, 255, 255, 0.1)',
-                borderRadius: '50%',
+                background: "rgba(255, 255, 255, 0.1)",
+                borderRadius: "50%",
               },
-              '&::after': {
+              "&::after": {
                 content: '""',
-                position: 'absolute',
+                position: "absolute",
                 bottom: -30,
                 left: -30,
                 width: 80,
                 height: 80,
-                background: 'rgba(255, 255, 255, 0.1)',
-                borderRadius: '50%',
-              }
+                background: "rgba(255, 255, 255, 0.1)",
+                borderRadius: "50%",
+              },
             }}
           >
-            <CardContent sx={{ position: 'relative', zIndex: 1 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mb: 2 }}>
-                <Avatar 
-                  sx={{ 
-                    bgcolor: 'rgba(255, 255, 255, 0.2)', 
-                    width: 64, 
+            <CardContent sx={{ position: "relative", zIndex: 1 }}>
+              <Box
+                sx={{ display: "flex", alignItems: "center", gap: 3, mb: 2 }}
+              >
+                <Avatar
+                  sx={{
+                    bgcolor: "rgba(255, 255, 255, 0.2)",
+                    width: 64,
                     height: 64,
-                    backdropFilter: 'blur(10px)'
+                    backdropFilter: "blur(10px)",
                   }}
                 >
-                  <TrophyIcon sx={{ fontSize: 32, color: '#FFD700' }} />
+                  <TrophyIcon sx={{ fontSize: 32, color: "#FFD700" }} />
                 </Avatar>
                 <Box sx={{ flexGrow: 1 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1,
+                      mb: 1,
+                    }}
+                  >
                     <Typography variant="h5" component="h2" fontWeight="bold">
                       🎉 Project Completed!
                     </Typography>
-                    <CelebrationIcon sx={{ fontSize: 28, color: '#FFD700' }} />
+                    <CelebrationIcon sx={{ fontSize: 28, color: "#FFD700" }} />
                   </Box>
-                  <Typography variant="body1" sx={{ opacity: 0.9, lineHeight: 1.6 }}>
-                    Congratulations! You've successfully completed all tasks in this project. 
-                    You can now request your certificate to showcase your achievement.
+                  <Typography
+                    variant="body1"
+                    sx={{ opacity: 0.9, lineHeight: 1.6 }}
+                  >
+                    Congratulations! You've successfully completed all tasks in
+                    this project. You can now request your certificate to
+                    showcase your achievement.
                   </Typography>
                 </Box>
               </Box>
-              
-              <Box sx={{ display: 'flex', gap: 2, mt: 3, flexWrap: 'wrap' }}>
+
+              <Box sx={{ display: "flex", gap: 2, mt: 3, flexWrap: "wrap" }}>
                 {certificateData?.available ? (
                   <Button
                     variant="contained"
                     size="large"
                     startIcon={<StarIcon />}
-                    sx={{ 
-                      bgcolor: 'rgba(255, 255, 255, 0.2)', 
-                      color: 'white',
-                      backdropFilter: 'blur(10px)',
-                      '&:hover': { 
-                        bgcolor: 'rgba(255, 255, 255, 0.3)' 
-                      }
+                    sx={{
+                      bgcolor: "rgba(255, 255, 255, 0.2)",
+                      color: "white",
+                      backdropFilter: "blur(10px)",
+                      "&:hover": {
+                        bgcolor: "rgba(255, 255, 255, 0.3)",
+                      },
                     }}
                     onClick={() => navigate(`/projects/${projectId}`)}
                   >
@@ -741,13 +770,13 @@ export default function TaskDetail() {
                     variant="contained"
                     size="large"
                     startIcon={<CertificateIcon />}
-                    sx={{ 
-                      bgcolor: 'rgba(255, 255, 255, 0.2)', 
-                      color: 'white',
-                      backdropFilter: 'blur(10px)',
-                      '&:hover': { 
-                        bgcolor: 'rgba(255, 255, 255, 0.3)' 
-                      }
+                    sx={{
+                      bgcolor: "rgba(255, 255, 255, 0.2)",
+                      color: "white",
+                      backdropFilter: "blur(10px)",
+                      "&:hover": {
+                        bgcolor: "rgba(255, 255, 255, 0.3)",
+                      },
                     }}
                     onClick={() => navigate("/certificates")}
                   >
@@ -758,13 +787,13 @@ export default function TaskDetail() {
                     variant="contained"
                     size="large"
                     startIcon={<StarIcon />}
-                    sx={{ 
-                      bgcolor: 'rgba(255, 255, 255, 0.2)', 
-                      color: 'white',
-                      backdropFilter: 'blur(10px)',
-                      '&:hover': { 
-                        bgcolor: 'rgba(255, 255, 255, 0.3)' 
-                      }
+                    sx={{
+                      bgcolor: "rgba(255, 255, 255, 0.2)",
+                      color: "white",
+                      backdropFilter: "blur(10px)",
+                      "&:hover": {
+                        bgcolor: "rgba(255, 255, 255, 0.3)",
+                      },
                     }}
                     onClick={() => navigate(`/projects/${projectId}`)}
                   >
@@ -774,39 +803,46 @@ export default function TaskDetail() {
                 <Button
                   variant="outlined"
                   size="large"
-                  sx={{ 
-                    borderColor: 'rgba(255, 255, 255, 0.5)', 
-                    color: 'white',
-                    '&:hover': { 
-                      borderColor: 'white',
-                      bgcolor: 'rgba(255, 255, 255, 0.1)' 
-                    }
+                  sx={{
+                    borderColor: "rgba(255, 255, 255, 0.5)",
+                    color: "white",
+                    "&:hover": {
+                      borderColor: "white",
+                      bgcolor: "rgba(255, 255, 255, 0.1)",
+                    },
                   }}
                   onClick={() => navigate(`/projects/${projectId}/submissions`)}
                 >
                   View All Submissions
                 </Button>
               </Box>
-              
-              <Box sx={{ mt: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
+
+              <Box
+                sx={{ mt: 3, display: "flex", alignItems: "center", gap: 1 }}
+              >
                 <Typography variant="body2" sx={{ opacity: 0.8 }}>
-                  Progress: {projectTasks.filter(t => t.is_passed).length}/{projectTasks.length} tasks completed
+                  Progress: {projectTasks.filter((t) => t.is_passed).length}/
+                  {projectTasks.length} tasks completed
                 </Typography>
-                <Box sx={{ 
-                  flexGrow: 1, 
-                  height: 6, 
-                  borderRadius: 3, 
-                  bgcolor: 'rgba(255, 255, 255, 0.3)',
-                  ml: 2,
-                  overflow: 'hidden'
-                }}>
-                  <Box sx={{ 
-                    width: '100%',
-                    height: '100%',
-                    bgcolor: '#4CAF50',
+                <Box
+                  sx={{
+                    flexGrow: 1,
+                    height: 6,
                     borderRadius: 3,
-                    boxShadow: '0 0 10px rgba(76, 175, 80, 0.5)'
-                  }} />
+                    bgcolor: "rgba(255, 255, 255, 0.3)",
+                    ml: 2,
+                    overflow: "hidden",
+                  }}
+                >
+                  <Box
+                    sx={{
+                      width: "100%",
+                      height: "100%",
+                      bgcolor: "#4CAF50",
+                      borderRadius: 3,
+                      boxShadow: "0 0 10px rgba(76, 175, 80, 0.5)",
+                    }}
+                  />
                 </Box>
               </Box>
             </CardContent>

@@ -178,13 +178,15 @@ function ProjectCard({ project }: { project: Project }) {
             project.tasks.length > 0 && (
               <Box sx={{ display: "flex", alignItems: "center" }}>
                 {/* Check if project is completed */}
-                {project.tasks.every(task => task.is_passed) ? (
+                {project.tasks.every((task) => task.is_passed) ? (
                   <>
-                    <TrophyIcon sx={{ color: '#FFD700', fontSize: 16, mr: 0.5 }} />
+                    <TrophyIcon
+                      sx={{ color: "#FFD700", fontSize: 16, mr: 0.5 }}
+                    />
                     <Typography
                       variant="body2"
                       color="success.main"
-                      sx={{ fontSize: 14, fontWeight: 'bold' }}
+                      sx={{ fontSize: 14, fontWeight: "bold" }}
                     >
                       Completed! 🎉
                     </Typography>
@@ -213,7 +215,8 @@ function ProjectCard({ project }: { project: Project }) {
                       <Box
                         sx={{
                           width: `${
-                            (project.tasks.filter((task) => task.is_passed).length /
+                            (project.tasks.filter((task) => task.is_passed)
+                              .length /
                               project.tasks.length) *
                             100
                           }%`,

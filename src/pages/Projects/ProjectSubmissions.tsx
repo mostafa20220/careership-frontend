@@ -94,6 +94,29 @@ export default function ProjectSubmissions() {
         </Box>
       ) : error ? (
         <Alert severity="error">{error}</Alert>
+      ) : submissions.length === 0 ? (
+        <Paper elevation={2} sx={{ p: 4, textAlign: 'center', borderRadius: 2 }}>
+          <Typography variant="h6" color="text.secondary" gutterBottom>
+            No Submissions Found
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+            {taskId 
+              ? "No submissions have been made for this task yet." 
+              : "No submissions have been made for this project yet."}
+          </Typography>
+          <Button
+            variant="contained"
+            onClick={() => {
+              if (taskId) {
+                navigate(`/projects/${projectId}/tasks/${taskId}`);
+              } else {
+                navigate(`/projects/${projectId}`);
+              }
+            }}
+          >
+            {taskId ? "Go to Task" : "Go to Project"}
+          </Button>
+        </Paper>
       ) : (
         <TableContainer component={Paper}>
           <Table>
@@ -145,7 +168,13 @@ export default function ProjectSubmissions() {
                         theme.palette.mode === 'dark' 
                           ? 'rgba(255, 255, 255, 0.04)' 
                           : 'rgba(0, 0, 0, 0.04)' 
-                    }
+                    },
+                    cursor: 'pointer'
+                  }}
+                  onClick={() => {
+                    // Navigate to the submission detail page on row click
+                    const actualTaskId = sub.task + 1;
+                    navigate(`/projects/${projectId}/tasks/${actualTaskId}/submissions/${sub.id}`);
                   }}
                 >
                   <TableCell>
@@ -234,9 +263,10 @@ export default function ProjectSubmissions() {
                       <IconButton
                         size="small"
                         onClick={() => {
-                          // Navigate to submission detail page
-                          // We need to find the task ID, which we'll need to get from the API or current route
-                          navigate(`/projects/${projectId}/tasks/${sub.task + 1}/submissions/${sub.id}`);
+                          // Note: in the API response, `task` is the order (0-based index)
+                          // But in the URL, we need the task ID which is 1-based, hence we add 1
+                          const actualTaskId = sub.task + 1;
+                          navigate(`/projects/${projectId}/tasks/${actualTaskId}/submissions/${sub.id}`);
                         }}
                         color="primary"
                       >

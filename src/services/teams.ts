@@ -10,7 +10,10 @@ export const fetchTeams = () => api.get<Team[]>("/teams/");
 export const fetchTeam = (uuid: string) => api.get<Team>(`/teams/${uuid}/`);
 export const createTeam = (data: CreateTeamRequest) =>
   api.post<Team>("/teams/", data);
-export const updateTeam = (teamId: string, data: { name?: string; owner?: string }) => {
+export const updateTeam = (
+  teamId: string,
+  data: { name?: string; owner?: string }
+) => {
   return api.patch(`/teams/${teamId}/`, data);
 };
 export const deleteTeam = (uuid: string) => api.delete(`/teams/${uuid}/`);
@@ -39,7 +42,6 @@ export const disableInvitation = (teamUuid: string, invitationUuid: string) =>
 export const deleteInvitation = (teamUuid: string, invitationUuid: string) =>
   api.delete(`/teams/${teamUuid}/invitations/${invitationUuid}/`);
 
-
 // team registeration
 export const registerTeamToProject = (data: {
   project: number;
@@ -48,4 +50,4 @@ export const registerTeamToProject = (data: {
 }) => api.post("/projects/registrations/", data);
 
 export const fetchProjectRegistrations = (projectId: number) =>
-  api.get(`/projects/registrations/`);
+  api.get(`/projects/${projectId}/registrations/`);

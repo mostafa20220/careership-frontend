@@ -34,7 +34,6 @@ import AIProjectDrafts from "./pages/Projects/AIProjectDrafts";
 import Certificates from "./pages/Certificates/Certificates";
 import Pricing from "./pages/Pricing";
 
-
 // Public routes that don't require authentication
 const publicRoutes = [
   {
@@ -109,7 +108,7 @@ const protectedRoutes = [
     path: "/projects/:projectId/tasks/:taskId/submissions/:submissionId",
     element: <SubmissionDetail />,
   },
-  
+
   {
     path: "/projects/drafts",
     element: <AIProjectDrafts />,
