@@ -48,4 +48,4 @@ export const registerTeamToProject = (data: {
 }) => api.post("/projects/registrations/", data);
 
 export const fetchProjectRegistrations = (projectId: number) =>
-  api.get(`/projects/registrations/?project=${projectId}`);
+  api.get(`/projects/registrations/`);
