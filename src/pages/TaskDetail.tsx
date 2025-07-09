@@ -144,7 +144,8 @@ export default function TaskDetail() {
   };
 
   const getDifficultyIcon = (difficulty: number | string) => {
-    switch (difficulty) {
+    const level = Number(difficulty);
+    switch (level) {
       case 1:
         return <EasyIcon color="success" fontSize="small" />;
       case 2:
@@ -321,16 +322,35 @@ export default function TaskDetail() {
           {/* Task Header */}
           <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
             <AssignmentIcon color="primary" sx={{ fontSize: 40 }} />
-            <Box>
+            <Box sx={{ flexGrow: 1 }}>
               <Typography variant="h4" component="h1" gutterBottom>
                 {task.name}
               </Typography>
-              <Box sx={{ mt: 0.5, display: "flex", alignItems: "center" }}>
-                <Tooltip title={`Difficulty: ${task.difficulty_level}`}>
-                  <Box component="span" sx={{ display: "flex" }}>
-                  {getDifficultyIcon(task.difficulty_level)}
-                  </Box>
-                </Tooltip>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 2,
+                  flexWrap: "wrap",
+                }}
+              >
+                {task.difficulty_level && (
+                  <Tooltip title={`Difficulty: ${task.difficulty_level}`}>
+                    <Chip
+                      icon={getDifficultyIcon(task.difficulty_level)}
+                      label={task.difficulty_level}
+                      size="small"
+                      color={
+                        task.difficulty_level === "Easy"
+                          ? "success"
+                          : task.difficulty_level === "Medium"
+                          ? "warning"
+                          : "error"
+                      }
+                      variant="filled"
+                    />
+                  </Tooltip>
+                )}
               </Box>
             </Box>
           </Box>
@@ -338,29 +358,262 @@ export default function TaskDetail() {
           <Divider sx={{ mb: 3 }} />
 
           {/* Task Description */}
-          <Typography variant="body1" paragraph>
-            {task.description || "No description available"}
-          </Typography>
+          <Box sx={{ mb: 4 }}>
+            <Typography
+              variant="h6"
+              gutterBottom
+              sx={{ display: "flex", alignItems: "center", gap: 1 }}
+            >
+              <AssignmentIcon color="action" />
+              Description
+            </Typography>
+            <Paper
+              variant="outlined"
+              sx={{
+                p: 3,
+                bgcolor: "grey.50",
+                borderRadius: 2,
+                "& p": { margin: 0 },
+              }}
+            >
+              {task.description ? (
+                <Typography variant="body1" sx={{ lineHeight: 1.7 }}>
+                  {task.description}
+                </Typography>
+              ) : (
+                <Typography
+                  variant="body1"
+                  color="text.secondary"
+                  sx={{
+                    fontStyle: "italic",
+                    textAlign: "center",
+                    py: 2,
+                  }}
+                >
+                  No description available for this task
+                </Typography>
+              )}
+            </Paper>
+          </Box>
 
-          {/* Task Info */}
-          <Box sx={{ mt: 4, display: "flex", gap: 4, flexWrap: "wrap" }}>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <ScheduleIcon color="action" />
-              <Typography>
-                Duration: {task.duration_in_days} day
-                {task.duration_in_days !== 1 ? "s" : ""}
-              </Typography>
-            </Box>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          {/* Task Info Cards */}
+          <Box sx={{ mb: 4 }}>
+            <Typography
+              variant="h6"
+              gutterBottom
+              sx={{ display: "flex", alignItems: "center", gap: 1 }}
+            >
               <FactCheckIcon color="action" />
-              <Typography>Tests: {task.tests}</Typography>
+              Task Information
+            </Typography>
+            <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+              <Paper
+                variant="outlined"
+                sx={{
+                  p: 2,
+                  minWidth: 200,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 2,
+                  bgcolor: "background.paper",
+                }}
+              >
+                <ScheduleIcon color="primary" sx={{ fontSize: 32 }} />
+                <Box>
+                  <Typography variant="caption" color="text.secondary">
+                    Duration
+                  </Typography>
+                  <Typography variant="h6" fontWeight="bold">
+                    {task.duration_in_days} day
+                    {task.duration_in_days !== 1 ? "s" : ""}
+                  </Typography>
+                </Box>
+              </Paper>
+
+              <Paper
+                variant="outlined"
+                sx={{
+                  p: 2,
+                  minWidth: 200,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 2,
+                  bgcolor: "background.paper",
+                }}
+              >
+                <CheckCircleIcon color="success" sx={{ fontSize: 32 }} />
+                <Box>
+                  <Typography variant="caption" color="text.secondary">
+                    Created
+                  </Typography>
+                  <Typography variant="h6" fontWeight="bold">
+                    {new Date(task.created_at).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                    })}
+                  </Typography>
+                </Box>
+              </Paper>
+
+              {task.tests && task.tests.length > 0 && (
+                <Paper
+                  variant="outlined"
+                  sx={{
+                    p: 2,
+                    minWidth: 200,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 2,
+                    bgcolor: "background.paper",
+                  }}
+                >
+                  <FactCheckIcon color="info" sx={{ fontSize: 32 }} />
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">
+                      Tests Available
+                    </Typography>
+                    <Typography variant="h6" fontWeight="bold">
+                      {Array.isArray(task.tests) ? task.tests.length : 1} test
+                      {(Array.isArray(task.tests) ? task.tests.length : 1) !== 1
+                        ? "s"
+                        : ""}
+                    </Typography>
+                  </Box>
+                </Paper>
+              )}
             </Box>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <CheckCircleIcon color="action" />
-              <Typography>
-                Created: {new Date(task.created_at).toLocaleDateString()}
-              </Typography>
-            </Box>
+          </Box>
+
+          {/* API Endpoints Section */}
+          <Box sx={{ mb: 4 }}>
+            <Typography
+              variant="h6"
+              gutterBottom
+              sx={{ display: "flex", alignItems: "center", gap: 1 }}
+            >
+              <Box
+                component="span"
+                sx={{
+                  display: "inline-block",
+                  fontSize: "1.2rem",
+                  mr: 0.5,
+                }}
+              >
+                🌐
+              </Box>
+              API Endpoints
+              {task.endpoints &&
+                Array.isArray(task.endpoints) &&
+                task.endpoints.length > 0 && (
+                  <Chip
+                    label={task.endpoints.length}
+                    size="small"
+                    color="primary"
+                    sx={{ ml: 1 }}
+                  />
+                )}
+            </Typography>
+
+            {task.endpoints &&
+            Array.isArray(task.endpoints) &&
+            task.endpoints.length > 0 ? (
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                {task.endpoints.map((endpoint: any, index: number) => (
+                  <Paper
+                    key={endpoint.id || index}
+                    variant="outlined"
+                    sx={{
+                      p: 3,
+                      borderRadius: 2,
+                      border: "1px solid",
+                      borderColor: "divider",
+                      "&:hover": {
+                        boxShadow: 2,
+                        borderColor: "primary.main",
+                      },
+                      transition: "all 0.2s ease-in-out",
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "flex-start",
+                        gap: 2,
+                        mb: 2,
+                      }}
+                    >
+                      <Chip
+                        label={endpoint.method || "GET"}
+                        size="small"
+                        color={
+                          endpoint.method === "POST"
+                            ? "success"
+                            : endpoint.method === "PUT" ||
+                              endpoint.method === "PATCH"
+                            ? "warning"
+                            : endpoint.method === "DELETE"
+                            ? "error"
+                            : "info"
+                        }
+                        sx={{
+                          fontWeight: "bold",
+                          minWidth: 70,
+                          fontFamily: "monospace",
+                        }}
+                      />
+                      <Box sx={{ flexGrow: 1 }}>
+                        <Typography
+                          variant="h6"
+                          component="code"
+                          sx={{
+                            fontFamily: "monospace",
+                            bgcolor: "grey.100",
+                            px: 1.5,
+                            py: 0.5,
+                            borderRadius: 1,
+                            fontSize: "1rem",
+                            fontWeight: "bold",
+                            color: "text.primary",
+                            display: "inline-block",
+                          }}
+                        >
+                          {endpoint.path || endpoint.url || "/"}
+                        </Typography>
+                        {endpoint.description && (
+                          <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{ mt: 1, lineHeight: 1.6 }}
+                          >
+                            {endpoint.description}
+                          </Typography>
+                        )}
+                      </Box>
+                    </Box>
+                  </Paper>
+                ))}
+              </Box>
+            ) : (
+              <Paper
+                variant="outlined"
+                sx={{
+                  p: 4,
+                  textAlign: "center",
+                  bgcolor: "grey.50",
+                  borderStyle: "dashed",
+                  borderColor: "grey.300",
+                }}
+              >
+                <Typography
+                  variant="body1"
+                  color="text.secondary"
+                  sx={{ fontStyle: "italic" }}
+                >
+                  No API endpoints defined for this task
+                </Typography>
+              </Paper>
+            )}
           </Box>
 
           {/* Submit Button */}

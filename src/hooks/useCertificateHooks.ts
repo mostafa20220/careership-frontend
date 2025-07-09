@@ -51,12 +51,9 @@ const getCertificate = async (certificate_no: string): Promise<Certificate> => {
 
 const downloadCertificate = async (certificate_no: string): Promise<Blob> => {
   console.log("downloading certificate", certificate_no);
-  const { data } = await api.get(
-    `/certificates/${certificate_no}/download/`,
-    {
-      responseType: "blob",
-    }
-  );
+  const { data } = await api.get(`/certificates/${certificate_no}/download/`, {
+    responseType: "blob",
+  });
   return data;
 };
 
@@ -84,9 +81,12 @@ export const useDownloadCertificate = () => {
   return useMutation({
     mutationFn: async (certificateNo: string) => {
       try {
-        const response = await api.get(`/certificates/${certificateNo}/download`, {
-          responseType: "blob",
-        });
+        const response = await api.get(
+          `/certificates/${certificateNo}/download`,
+          {
+            responseType: "blob",
+          }
+        );
         // Create a URL for the blob and trigger download
         const url = window.URL.createObjectURL(new Blob([response.data]));
         const link = document.createElement("a");

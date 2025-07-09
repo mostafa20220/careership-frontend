@@ -1,3 +1,11 @@
+export interface TaskEndpoint {
+  id?: number;
+  method: string;
+  path?: string;
+  url?: string;
+  description?: string;
+}
+
 export interface Task {
   id: number;
   name: string;
@@ -5,8 +13,10 @@ export interface Task {
   description: string;
   duration_in_days: number;
   tests: string[];
-  difficulty_level: string;
+  difficulty_level: number | string;
   created_at: string;
+  updated_at?: string;
+  endpoints?: TaskEndpoint[];
 }
 
 export interface Project {
