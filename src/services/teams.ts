@@ -55,7 +55,10 @@ export const fetchProjectRegistrations = () =>
 
 export const fetchProjectRegistrationsByProject = (
   projectId: string | number
-) => api.get<ProjectRegistrationDetail[]>(`/projects/registrations?project_id=${projectId}`);
+) =>
+  api.get<ProjectRegistrationDetail[]>(
+    `/projects/registrations?project_id=${projectId}`
+  );
 
 export const cancelProjectRegistration = (
   registrationId: number,

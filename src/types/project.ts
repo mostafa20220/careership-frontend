@@ -81,10 +81,13 @@ export interface ProjectRegistrationDetail {
     is_registered: boolean;
     created_by_name: string;
   };
-  team: string;
+  team: {
+    uuid: string;
+    name: string;
+  };
   is_finished: boolean;
   finished_at: string | null;
   created_at: string;
-  updated_at: string;
+  updated_at?: string;
   deployment_url: string;
 }

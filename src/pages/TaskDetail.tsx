@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import type { Task, Project, ProjectRegistrationDetail } from "../types/project";
+import type {
+  Task,
+  Project,
+  ProjectRegistrationDetail,
+} from "../types/project";
 import api from "../services/api";
 import {
   Container,
@@ -87,7 +91,9 @@ export default function TaskDetail() {
   const [projectTasks, setProjectTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [projectRegistrations, setProjectRegistrations] = useState<ProjectRegistrationDetail[]>([]);
+  const [projectRegistrations, setProjectRegistrations] = useState<
+    ProjectRegistrationDetail[]
+  >([]);
   const [checkingRegistration, setCheckingRegistration] = useState(true);
 
   // Submission state
@@ -170,7 +176,9 @@ export default function TaskDetail() {
         setProjectTasks(tasksResponse.data);
 
         // Fetch project registrations for submission functionality
-        const registrationsRes = await fetchProjectRegistrationsByProject(projectId);
+        const registrationsRes = await fetchProjectRegistrationsByProject(
+          projectId
+        );
         setProjectRegistrations(registrationsRes.data);
       } catch (err) {
         setError("Failed to load task data");
@@ -1274,8 +1282,8 @@ export default function TaskDetail() {
               disabled={submitting}
             >
               {projectRegistrations.map((registration) => (
-                <MenuItem key={registration.id} value={registration.team}>
-                  {registration.team}
+                <MenuItem key={registration.id} value={registration.team.uuid}>
+                  {registration.team.name}
                 </MenuItem>
               ))}
             </Select>

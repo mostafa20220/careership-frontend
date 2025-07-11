@@ -68,31 +68,33 @@ export default function SignUp() {
       console.log("Error response:", err?.response);
       console.log("Error data:", err?.response?.data);
       console.log("Error message:", err?.message);
-      
+
       // Check if error has the concatenated format from useAuth
       if (err?.message && typeof err.message === "string") {
         const validationErrors: ValidationErrors = {};
-        
+
         // Parse the concatenated error message like "password: msg1, msg2\nfield: msg3"
-        const errorLines = err.message.split('\n');
+        const errorLines = err.message.split("\n");
         errorLines.forEach((line: string) => {
-          const colonIndex = line.indexOf(':');
+          const colonIndex = line.indexOf(":");
           if (colonIndex > 0) {
             const field = line.substring(0, colonIndex).trim();
             const messagesStr = line.substring(colonIndex + 1).trim();
-            const messages = messagesStr.split(', ').map((msg: string) => msg.trim());
+            const messages = messagesStr
+              .split(", ")
+              .map((msg: string) => msg.trim());
             validationErrors[field] = messages;
           }
         });
-        
+
         console.log("Parsed validation errors:", validationErrors);
-        
+
         if (Object.keys(validationErrors).length > 0) {
           setErrors(validationErrors);
           return;
         }
       }
-      
+
       // Fallback: check if it's a structured response error
       const errorData = err?.response?.data;
       if (errorData && typeof errorData === "object") {
@@ -109,7 +111,7 @@ export default function SignUp() {
         });
 
         console.log("Final validation errors:", validationErrors);
-        
+
         // Set validation errors if any exist
         if (Object.keys(validationErrors).length > 0) {
           setErrors(validationErrors);
@@ -146,8 +148,12 @@ export default function SignUp() {
     console.log("Getting all errors from state:", errors);
     const allErrors = Object.entries(errors).flatMap(([field, msgs]) => {
       if (!msgs || msgs.length === 0) return [];
-      
-      if (field === "password" || field === "confirmPassword" || field === "general") {
+
+      if (
+        field === "password" ||
+        field === "confirmPassword" ||
+        field === "general"
+      ) {
         return msgs; // Show these errors as plain messages
       } else {
         return msgs.map((msg) => `${field}: ${msg}`);
