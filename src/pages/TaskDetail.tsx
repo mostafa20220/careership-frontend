@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import type { Task, Project } from "../types/project";
+import type { Task, Project, ProjectRegistrationDetail } from "../types/project";
 import api from "../services/api";
 import {
   Container,
@@ -55,9 +55,11 @@ import {
   WorkspacePremium as CertificateIcon,
   Group as GroupIcon,
 } from "@mui/icons-material";
-import { fetchProjectRegistrations, fetchTeams } from "../services/teams";
+import {
+  fetchProjectRegistrations,
+  fetchProjectRegistrationsByProject,
+} from "../services/teams";
 import { createSubmission } from "../services/api";
-import type { Team } from "../types/team";
 import { useAuthStore } from "../store/authStore";
 import { useCertificateAvailability } from "../hooks/useCertificateHooks";
 
@@ -85,8 +87,7 @@ export default function TaskDetail() {
   const [projectTasks, setProjectTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [teams, setTeams] = useState<Team[]>([]);
-  const [registeredTeamUuids, setRegisteredTeamUuids] = useState<string[]>([]);
+  const [projectRegistrations, setProjectRegistrations] = useState<ProjectRegistrationDetail[]>([]);
   const [checkingRegistration, setCheckingRegistration] = useState(true);
 
   // Submission state
@@ -168,23 +169,9 @@ export default function TaskDetail() {
         const tasksResponse = await api.get(`/projects/${projectId}/tasks/`);
         setProjectTasks(tasksResponse.data);
 
-        // Fetch teams and registrations for submission functionality
-        const [teamsRes, registrationsRes] = await Promise.all([
-          fetchTeams(),
-          fetchProjectRegistrations(),
-        ]);
-
-        setTeams(teamsRes.data);
-
-        // Filter registrations for this project and extract team UUIDs
-        const registeredTeams = registrationsRes.data
-          .filter((reg: any) => reg.project.id === Number(projectId))
-          .map((reg: any) => {
-            const match = reg.team.match(/\(([0-9a-fA-F-]+)\)$/);
-            return match ? match[1] : reg.team;
-          });
-
-        setRegisteredTeamUuids(registeredTeams);
+        // Fetch project registrations for submission functionality
+        const registrationsRes = await fetchProjectRegistrationsByProject(projectId);
+        setProjectRegistrations(registrationsRes.data);
       } catch (err) {
         setError("Failed to load task data");
       } finally {
@@ -1286,13 +1273,11 @@ export default function TaskDetail() {
               onChange={(e) => setSelectedTeam(e.target.value)}
               disabled={submitting}
             >
-              {teams
-                .filter((team) => registeredTeamUuids.includes(team.uuid))
-                .map((team) => (
-                  <MenuItem key={team.uuid} value={team.uuid}>
-                    {team.name}
-                  </MenuItem>
-                ))}
+              {projectRegistrations.map((registration) => (
+                <MenuItem key={registration.id} value={registration.team}>
+                  {registration.team}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
           <TextField

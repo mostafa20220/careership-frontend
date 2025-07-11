@@ -1,5 +1,6 @@
 import api from "./api";
 import type { Team } from "../types/team";
+import type { ProjectRegistrationDetail } from "../types/project";
 
 export interface CreateTeamRequest {
   name: string;
@@ -51,6 +52,10 @@ export const registerTeamToProject = (data: {
 
 export const fetchProjectRegistrations = () =>
   api.get("/projects/registrations/");
+
+export const fetchProjectRegistrationsByProject = (
+  projectId: string | number
+) => api.get<ProjectRegistrationDetail[]>(`/projects/registrations?project_id=${projectId}`);
 
 export const cancelProjectRegistration = (
   registrationId: number,

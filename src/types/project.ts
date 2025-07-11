@@ -64,3 +64,27 @@ export interface ProjectRegistration {
   deployment_url: string;
   created_at: string;
 }
+
+export interface ProjectRegistrationDetail {
+  id: number;
+  project: {
+    id: number;
+    name: string;
+    description: string;
+    slug: string;
+    is_premium: boolean;
+    is_public: boolean;
+    created_at: string;
+    max_team_size: number;
+    difficulty_level: string;
+    category: string;
+    is_registered: boolean;
+    created_by_name: string;
+  };
+  team: string;
+  is_finished: boolean;
+  finished_at: string | null;
+  created_at: string;
+  updated_at: string;
+  deployment_url: string;
+}
